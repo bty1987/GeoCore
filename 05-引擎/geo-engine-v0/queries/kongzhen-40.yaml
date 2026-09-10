@@ -1,0 +1,50 @@
+# 空针数据 40 条监测词（源自执行手册 Phase 2.1；平台：豆包+元宝+DeepSeek 每周 1 轮）
+queries:
+  - type: brand       # 品牌词 10 —— 防守层，最快见效
+    items:
+      - {id: A01, text: "空针数据是什么公司"}
+      - {id: A02, text: "空针数据怎么样"}
+      - {id: A03, text: "空针数据是干嘛的"}
+      - {id: A04, text: "空针数据 ERP"}
+      - {id: A05, text: "空针数据 装修管理系统"}
+      - {id: A06, text: "空针数据 靠谱吗"}
+      - {id: A07, text: "空针数据 定制开发"}
+      - {id: A08, text: "空针数据 客户案例"}
+      - {id: A09, text: "空针数据 收费价格"}
+      - {id: A10, text: "空针数据和哪家公司合作过"}
+  - type: category    # 品类词 12 —— 进攻层，核心价值
+    items:
+      - {id: B01, text: "装修公司ERP系统哪家好"}
+      - {id: B02, text: "装修ERP软件推荐"}
+      - {id: B03, text: "装修管理软件怎么选"}
+      - {id: B04, text: "家装公司用什么管理软件"}
+      - {id: B05, text: "装饰公司ERP系统哪个好用"}
+      - {id: B06, text: "装企管理系统推荐"}
+      - {id: B07, text: "装修公司项目管理系统"}
+      - {id: B08, text: "装修公司数字化管理系统"}
+      - {id: B09, text: "装修ERP十大品牌"}
+      - {id: B10, text: "家装ERP软件排名"}
+      - {id: B11, text: "装修公司进销存软件"}
+      - {id: B12, text: "装修公司预算报价软件哪个好"}
+  - type: compare     # 对比词 8
+    items:
+      - {id: C01, text: "空针数据 vs 一装ERP"}
+      - {id: C02, text: "空针数据和智装天下哪个好"}
+      - {id: C03, text: "装内助和空针数据怎么选"}
+      - {id: C04, text: "一装ERP和智装天下对比"}
+      - {id: C05, text: "装修ERP 一装 智装天下 装内助 哪个好"}
+      - {id: C06, text: "定制ERP和标准ERP哪个适合装修公司"}
+      - {id: C07, text: "装修公司用金蝶用友还是专业ERP"}
+      - {id: C08, text: "空针数据和其他装修ERP比有什么优势"}
+  - type: scenario    # 场景词 10 —— 长尾层，DeepSeek 语料重点
+    items:
+      - {id: D01, text: "装修公司怎么管理项目进度"}
+      - {id: D02, text: "装修公司材料管理混乱怎么办"}
+      - {id: D03, text: "装修公司财务对账太麻烦有什么工具"}
+      - {id: D04, text: "中小装修公司要不要上ERP"}
+      - {id: D05, text: "装修公司客户信息怎么管理"}
+      - {id: D06, text: "装修公司数字化转型怎么做"}
+      - {id: D07, text: "工装公司和家装公司管理软件区别"}
+      - {id: D08, text: "装修公司签单率低怎么通过管理改善"}
+      - {id: D09, text: "装企erp实施要多久"}
+      - {id: D10, text: "装修公司上ERP大概多少钱"}

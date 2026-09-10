@@ -1,0 +1,19 @@
+# 复制为 config.yaml 使用；config.yaml 不入仓库
+run:
+  min_gap_seconds: 180      # 查询间隔下限
+  max_gap_seconds: 600      # 上限（3–10 分钟随机）
+  daily_max_per_account: 15 # 单账号日查询上限（宁可慢不可封）
+  headless: false           # 风控敏感期建议 false，肉眼可介入
+accounts:
+  doubao:
+    - profile_dir: "profiles/doubao-01"   # 持久化登录态目录，一账号一目录一指纹
+  yuanbao:
+    - profile_dir: "profiles/yuanbao-01"
+  deepseek:
+    - profile_dir: "profiles/deepseek-01"
+output:
+  dir: "output"
+  snapshots: "output/screenshots"
+brand_facts:                # v1 实体解析用：品牌与竞品清单
+  target: "空针数据"
+  competitors: ["一装ERP", "智装天下", "装内助", "云装天下", "掌赋"]

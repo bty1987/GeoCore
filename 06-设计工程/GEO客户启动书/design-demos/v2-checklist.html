@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>启动资料准备清单 · GEO 服务</title>
+<!-- V2 咨询报告体 · 已选定方向的迭代（direction-approved.md）：启动资料准备清单 -->
+<!-- 设计语言与《项目说明暨启动资料清单》一致：深蓝刊头 / 衬线结论式标题 / 单一青绿高亮 / 文书表格 / 运行页脚 -->
+<style>
+  :root{
+    --navy:#051C2C; --navy-2:#0A2E44; --ink:#15242F; --ink-2:#4A6070;
+    --hairline:#D8E0E6; --panel:#F4F7F9; --green:#0E7C66; --amber:#B07A1E;
+    --serif:"Songti SC","Noto Serif SC","Source Han Serif SC",STSong,serif;
+    --sans:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--sans);color:var(--ink);background:#fff;line-height:1.8;text-wrap:pretty}
+  .ph{border-bottom:1.5px dashed #B99A4E;padding:0 2px;font-weight:600;color:#7A6224}
+
+  /* ── 刊头 ── */
+  .masthead{background:var(--navy);color:#fff;padding:0 0 40px}
+  .mast-top{display:flex;justify-content:space-between;align-items:center;padding:18px 56px;border-bottom:1px solid rgba(255,255,255,.16)}
+  .mast-top .firm{font-family:var(--serif);font-size:17px;font-weight:700;letter-spacing:.12em}
+  .mast-top .doc-no{font-family:var(--mono);font-size:12px;color:#8FA6B5;letter-spacing:.14em}
+  .mast-in{max-width:1240px;margin:0 auto;padding:46px 56px 0}
+  .masthead .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.28em;color:#7E9AAC;margin-bottom:16px}
+  .masthead h1{font-family:var(--serif);font-size:clamp(30px,3.4vw,42px);font-weight:700;line-height:1.3;max-width:24em;margin-bottom:14px}
+  .masthead h1 em{font-style:normal;border-bottom:3px solid var(--green);padding-bottom:2px}
+  .masthead .sub{font-size:16px;color:#B7C7D2;margin-bottom:30px}
+  .meta{display:flex;gap:0;border:1px solid rgba(255,255,255,.2);border-radius:8px;overflow:hidden;max-width:900px}
+  .meta div{padding:12px 22px;font-size:13px;color:#B7C7D2;border-left:1px solid rgba(255,255,255,.2)}
+  .meta div:first-child{border-left:none}
+  .meta b{display:block;color:#fff;font-size:14.5px;font-weight:600;margin-top:2px}
+
+  /* ── 双栏骨架 ── */
+  .frame{max-width:1240px;margin:0 auto;padding:44px 56px 0;display:grid;grid-template-columns:1fr 250px;gap:56px;align-items:start}
+  main{min-width:0}
+  .chapter{margin-bottom:56px}
+  .ch-head{display:flex;align-items:baseline;gap:18px;margin-bottom:8px}
+  .ch-no{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--green);letter-spacing:.04em}
+  .ch-rule{flex:1;height:1px;background:var(--hairline);position:relative;top:-6px}
+  h2.action{font-family:var(--serif);font-size:23px;font-weight:700;line-height:1.45;margin-bottom:18px;max-width:30em}
+  p.lead{font-size:15px;color:var(--ink-2);margin-bottom:20px;max-width:70ch}
+  p.lead b,td b,li b{color:var(--ink)}
+  h3.sub-head{font-size:16px;font-weight:700;margin:26px 0 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  h3.sub-head::before{content:"";width:14px;height:3px;background:var(--green);border-radius:1px}
+  h3.sub-head .gd{font-weight:400;color:var(--ink-2);font-size:13.5px}
+  .badge{font-family:var(--mono);font-size:11.5px;font-weight:700;letter-spacing:.06em;padding:2px 9px;border-radius:3px;color:#fff}
+  .badge.p0{background:var(--navy)}
+  .badge.p1{background:var(--green)}
+
+  /* 表格 */
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:16px 0}
+  th{background:var(--navy);color:#fff;text-align:left;padding:10px 15px;font-weight:600;font-size:13px;letter-spacing:.05em}
+  td{padding:11px 15px;border-bottom:1px solid var(--hairline);vertical-align:top}
+  tr:nth-child(even) td{background:var(--panel)}
+  td.k{font-weight:600;white-space:nowrap}
+  td .mut{color:var(--ink-2);font-size:13px}
+  .cl-table th:first-child,.cl-table td:first-child{text-align:center}
+  .cl-table td.ck{font-size:16px;color:var(--green);font-family:var(--mono);width:62px}
+  .cl-table td.no{font-family:var(--mono);font-weight:700;color:var(--ink-2);width:70px}
+  .cl-table td.form{color:var(--ink-2);font-size:13px;width:160px}
+
+  /* 三栏对仗 */
+  .tri{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0}
+  .tri .cell{border:1px solid var(--hairline);border-top:3px solid var(--navy);padding:18px 18px 16px;background:#fff}
+  .tri .cell em{display:block;font-style:normal;font-family:var(--mono);font-size:12px;color:var(--green);font-weight:700;margin-bottom:8px;letter-spacing:.06em}
+  .tri .cell b{display:block;font-size:15.5px;margin-bottom:6px}
+  .tri .cell p{font-size:13.5px;color:var(--ink-2)}
+
+  /* 提交方式列表 */
+  ul.rules{list-style:none;margin:14px 0}
+  ul.rules li{font-size:14px;padding:9px 0 9px 24px;position:relative;border-bottom:1px solid var(--hairline)}
+  ul.rules li::before{content:"—";position:absolute;left:0;color:var(--green);font-family:var(--mono)}
+
+  .note{border-left:3px solid var(--green);background:var(--panel);padding:16px 20px;font-size:14px;color:var(--ink);margin:18px 0}
+  .note b{color:var(--navy)}
+
+  /* 填写模板 */
+  .tpl{border:1px solid var(--hairline);border-top:3px solid var(--green);padding:20px 22px 18px;margin:16px 0 24px;background:#fff}
+  .tpl .tpl-h{font-family:var(--mono);font-size:12px;color:var(--green);font-weight:700;letter-spacing:.08em;margin-bottom:10px}
+  .tpl .tpl-t{font-family:var(--serif);font-size:16.5px;font-weight:700;margin-bottom:12px}
+  .tpl p{font-size:14.5px;line-height:2.05;color:var(--ink)}
+  .tpl p+p{margin-top:10px}
+  .tpl p .lab{font-weight:700;color:var(--navy)}
+  .tpl table{margin:6px 0 0}
+  .tpl td.f{width:200px;font-weight:600}
+  .tpl td.blank{color:var(--ink-2);font-size:13px}
+  .tpl td.ck2{font-family:var(--mono);font-size:14px;color:var(--green);white-space:nowrap;width:120px}
+
+  /* FAQ */
+  .qa{padding:16px 0;border-bottom:1px solid var(--hairline)}
+  .qa .q{font-family:var(--serif);font-size:16px;font-weight:700;margin-bottom:6px}
+  .qa .q span{font-family:var(--mono);color:var(--green);margin-right:10px;font-size:14px}
+  .qa .a{font-size:14px;color:var(--ink-2);padding-left:38px}
+  .qa .a b{color:var(--ink)}
+
+  /* ── 右侧目录 ── */
+  aside{position:sticky;top:24px}
+  .toc{border:1px solid var(--hairline);border-radius:6px;overflow:hidden}
+  .toc .toc-h{background:var(--panel);font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;color:var(--ink-2);padding:10px 16px;border-bottom:1px solid var(--hairline)}
+  .toc a{display:flex;gap:10px;padding:10px 16px;font-size:13.5px;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--hairline)}
+  .toc a:last-child{border-bottom:none}
+  .toc a:hover{background:var(--panel)}
+  .toc a .tn{font-family:var(--mono);color:var(--green);font-weight:700;font-size:12px;padding-top:2px}
+  .docinfo{margin-top:16px;border:1px solid var(--hairline);border-radius:6px;padding:16px}
+  .docinfo h5{font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;color:var(--ink-2);margin-bottom:10px}
+  .docinfo dl{font-size:13px}
+  .docinfo dt{color:var(--ink-2);margin-top:8px}
+  .docinfo dd{margin-top:2px;font-weight:600}
+
+  footer{margin-top:60px;background:var(--navy);color:#8FA6B5;padding:26px 56px;font-size:12.5px;line-height:1.8}
+  footer .f-in{max-width:1240px;margin:0 auto}
+
+  @media (max-width:960px){
+    .frame{grid-template-columns:1fr;padding:32px 24px 0}
+    aside{position:static;order:-1}
+    .tri{grid-template-columns:1fr}
+    .mast-in,.mast-top,footer{padding-left:24px;padding-right:24px}
+  }
+  @page{size:A4;margin:8mm 0 16mm}
+  @media print{
+    aside{display:none}
+    .frame{grid-template-columns:1fr;gap:0;padding:40px 48px 4px}
+    .masthead{padding-bottom:24px}
+    .mast-in{padding:28px 48px 0}
+    .mast-top{padding:14px 48px}
+    footer{background:#fff;color:#8AA0AF;border-top:1px solid #D8E0E6;padding:10px 48px 0;margin-top:0;break-inside:avoid}
+    footer .f-in{margin:0}
+    h2.action,.ch-head,h3.sub-head,.tpl .tpl-h,.tpl .tpl-t{break-after:avoid}
+    table{break-inside:auto}
+    tr,th{break-inside:avoid}
+    .note,.meta,.qa,ul.rules li{break-inside:avoid}
+    .tri{grid-template-columns:1fr;break-inside:auto}
+    .tri .cell{border-left:none;border-top:1px solid #D8E0E6;padding:14px 0 10px;break-inside:avoid}
+    .tpl{break-inside:avoid}
+    .chapter{break-inside:auto}
+    body{background:#fff}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="mast-top">
+    <div class="firm"><span class="ph" style="border-color:#5A7488;color:#C6D5DF">【服务方名称】</span></div>
+    <div class="doc-no">GEO-ONBOARDING · CHECKLIST · <span class="ph" style="border-color:#5A7488;color:#C6D5DF">【日期】</span></div>
+  </div>
+  <div class="mast-in">
+    <div class="kicker">GENERATIVE ENGINE OPTIMIZATION · ONBOARDING</div>
+    <h1>开工之前，<em>先把事实备齐</em></h1>
+    <p class="sub">启动资料准备清单　·　致：<span class="ph" style="border-color:#5A7488;color:#C6D5DF">【您的品牌】</span>　·　AI 搜索优化（GEO）服务启动阶段</p>
+    <div class="meta">
+      <div>清单规模<b>四组 · 14 项</b></div>
+      <div>P0 启动会前<b>A 组 + B 组 · 7 项</b></div>
+      <div>P1 启动会后 3 天内<b>C 组 + D 组 · 7 项</b></div>
+      <div>提交方式<b>微信或邮箱打包</b></div>
+    </div>
+  </div>
+</header>
+
+<div class="frame">
+<main>
+
+  <div class="chapter" id="c1">
+    <div class="ch-head"><span class="ch-no">01</span><div class="ch-rule"></div></div>
+    <h2 class="action">资料备得越准，AI 在回答里就说得越准</h2>
+    <p class="lead">您已确认合作，感谢信任。GEO 的核心是让各 AI 平台在回答时准确、正面地引用您——而 AI 通过多个来源<b>交叉验证</b>信息：您的公司简介、产品描述、数字口径在公众号、百科、知乎、官网上必须完全一致，AI 才会信任并引用。我们会把您提供的资料整理成一份《品牌事实库》，作为后续所有内容的<b>唯一事实来源</b>。</p>
+    <div class="tri">
+      <div class="cell"><em>规则一 · 优先级</em><b>P0 启动会前必须，P1 三天内补齐</b><p>P0（A、B 组）决定能否开工；P1（C、D 组）决定内容质量。先交 P0 即可启动基线监测。</p></div>
+      <div class="cell"><em>规则二 · 不会填就跳过</em><b>标注「待访谈」，我们代为整理</b><p>不确定怎么写的项目直接跳过，约 30–60 分钟访谈，我们整理后交您确认即可。</p></div>
+      <div class="cell"><em>规则三 · 保密</em><b>全部资料仅用于本项目</b><p>我们承担保密义务，账号信息加密保存，项目结束后按您的要求处理或删除。</p></div>
+    </div>
+  </div>
+
+  <div class="chapter" id="c2">
+    <div class="ch-head"><span class="ch-no">02</span><div class="ch-rule"></div></div>
+    <h2 class="action">启动会前交齐 A、B 两组即可开工，C、D 两组三天内补齐</h2>
+    <table>
+      <thead><tr><th style="width:130px">阶段</th><th>需完成</th><th style="width:170px">建议时间</th></tr></thead>
+      <tr><td class="k">收到本文档</td><td>通读一遍，每项标记「能提供 / 待访谈 / 无此项」</td><td class="mut">当天</td></tr>
+      <tr><td class="k">启动会前</td><td>提交 <b>A 组 + B 组</b>（P0，共 7 项）</td><td class="mut">启动会前 1–2 天</td></tr>
+      <tr><td class="k">启动会</td><td>逐项核对口径，确认《品牌事实库》v1.0</td><td class="mut">线上 30 分钟</td></tr>
+      <tr><td class="k">启动会后</td><td>补齐 <b>C 组 + D 组</b>（P1，共 7 项）</td><td class="mut">3 天内</td></tr>
+      <tr><td class="k">提交后</td><td>我们 24 小时内确认收到，开始整理事实库</td><td class="mut">—</td></tr>
+    </table>
+    <h3 class="sub-head">提交方式</h3>
+    <ul class="rules">
+      <li><b>渠道</b>：微信打包发送，或发送至 <span class="ph">【邮箱】</span>；文件较多时建议压缩包</li>
+      <li><b>命名</b>：文件名带清单编号前缀，如「A1-公司基础信息.docx」「C2-证书-软著.jpg」，便于对应</li>
+      <li><b>图片与证书</b>：提供原图（非截图、非微信压缩图）；Logo 请提供矢量源文件（AI / SVG / PDF）</li>
+      <li><b>账号权限</b>：新媒体账号提供<b>子管理员或运营者权限</b>即可，无需交出主账号密码；敏感操作我们会提前确认</li>
+    </ul>
+  </div>
+
+  <div class="chapter" id="c3">
+    <div class="ch-head"><span class="ch-no">03</span><div class="ch-rule"></div></div>
+    <h2 class="action">四组 14 项：每项都标了优先级、说明与提供形式</h2>
+
+    <h3 class="sub-head">A 组 · 公司与品牌基础 <span class="badge p0">P0 · 启动会前</span><span class="gd">用于建立全渠道统一的「品牌事实库」</span></h3>
+    <table class="cl-table">
+      <thead><tr><th style="width:62px">确认</th><th style="width:70px">编号</th><th style="width:150px">资料</th><th>说明</th><th style="width:160px">提供形式</th></tr></thead>
+      <tr><td class="ck">□</td><td class="no">A1</td><td class="k">公司基础信息</td><td>成立年份、总部城市、团队规模、累计服务客户数</td><td class="form">文字，几行即可</td></tr>
+      <tr><td class="ck">□</td><td class="no">A2</td><td class="k">产品/服务清单</td><td>产品名称、版本或套餐划分、每个版本的核心功能点</td><td class="form">现有宣传册 / PPT 即可</td></tr>
+      <tr><td class="ck">□</td><td class="no">A3</td><td class="k">统一品牌介绍</td><td>一句话定义（50 字内）+ 标准介绍（150 字左右）</td><td class="form">文字；可用模板 1</td></tr>
+      <tr><td class="ck">□</td><td class="no">A4</td><td class="k">可对外使用的数字</td><td>客户数、项目数、满意度、效率提升等——仅限<b>允许对外宣传</b>的指标，逐项标注可否公开</td><td class="form">表格；可用模板 3</td></tr>
+    </table>
+
+    <h3 class="sub-head">B 组 · 差异化与竞争信息 <span class="badge p0">P0 · 启动会前</span><span class="gd">决定内容「打什么点」</span></h3>
+    <table class="cl-table">
+      <thead><tr><th style="width:62px">确认</th><th style="width:70px">编号</th><th style="width:150px">资料</th><th>说明</th><th style="width:160px">提供形式</th></tr></thead>
+      <tr><td class="ck">□</td><td class="no">B1</td><td class="k">三大差异化优势</td><td>相比同行最强的 3 个点，各配 1–2 句说明或一个证据</td><td class="form">文字</td></tr>
+      <tr><td class="ck">□</td><td class="no">B2</td><td class="k">主要竞争对手</td><td>您视为直接竞品的 3–5 个品牌名，用于监测对比与内容对标</td><td class="form">文字列表</td></tr>
+      <tr><td class="ck">□</td><td class="no">B3</td><td class="k">目标客户画像</td><td>最想吸引的客户：企业规模、所在地区、决策人角色、典型需求场景</td><td class="form">文字，3–5 行</td></tr>
+    </table>
+
+    <h3 class="sub-head">C 组 · 案例与信任素材 <span class="badge p1">P1 · 启动会后 3 天内</span><span class="gd">AI 最愿意引用的内容形态</span></h3>
+    <table class="cl-table">
+      <thead><tr><th style="width:62px">确认</th><th style="width:70px">编号</th><th style="width:150px">资料</th><th>说明</th><th style="width:160px">提供形式</th></tr></thead>
+      <tr><td class="ck">□</td><td class="no">C1</td><td class="k">客户案例 3–5 个</td><td>客户类型与规模、原来的问题、采用的方案、使用后的 2–3 个结果数据；客户名称可脱敏</td><td class="form">可用模板 2 案例卡</td></tr>
+      <tr><td class="ck">□</td><td class="no">C2</td><td class="k">资质与荣誉</td><td>软著、专利、认证、行业协会会员、奖项</td><td class="form">证书原图 + 名称列表</td></tr>
+      <tr><td class="ck">□</td><td class="no">C3</td><td class="k">创始人/团队背景</td><td>行业从业年限、过往经历、可对外讲的故事——行业出身是强信任点</td><td class="form">文字，200 字左右</td></tr>
+    </table>
+
+    <h3 class="sub-head">D 组 · 账号与配合事项 <span class="badge p1">P1 · 启动会后 3 天内</span><span class="gd">账号与网站是内容的「阵地」</span></h3>
+    <table class="cl-table">
+      <thead><tr><th style="width:62px">确认</th><th style="width:70px">编号</th><th style="width:150px">资料</th><th>说明</th><th style="width:160px">提供形式</th></tr></thead>
+      <tr><td class="ck">□</td><td class="no">D1</td><td class="k">现有新媒体账号</td><td>公众号 / 视频号 / 抖音 / 头条 / 知乎 / 小红书等：账号名、当前粉丝量、可否由我方代运营、管理员联系方式</td><td class="form">表格 + 权限开通</td></tr>
+      <tr><td class="ck">□</td><td class="no">D2</td><td class="k">官网与技术对接人</td><td>官网地址、后台可否修改页面标题与内容、技术人员联系方式（需约 1–2 小时配合）</td><td class="form">文字</td></tr>
+      <tr><td class="ck">□</td><td class="no">D3</td><td class="k">品牌素材包</td><td>Logo 矢量源文件、品牌色值、对外可用的图片素材（产品图、团队照、办公环境）</td><td class="form">压缩包</td></tr>
+      <tr><td class="ck">□</td><td class="no">D4</td><td class="k">禁区清单</td><td>不允许对外提及的内容：未发布产品、保密客户、敏感数据、竞品对比的边界</td><td class="form">文字列表</td></tr>
+    </table>
+  </div>
+
+  <div class="chapter" id="c4">
+    <div class="ch-head"><span class="ch-no">04</span><div class="ch-rule"></div></div>
+    <h2 class="action">三个模板直接套用，填空即可</h2>
+
+    <div class="tpl">
+      <div class="tpl-h">模板 1 · 对应 A3</div>
+      <div class="tpl-t">统一品牌介绍</div>
+      <p><span class="lab">一句话定义：</span><span class="ph">【品牌名】</span>是一家专注于<span class="ph">【行业 / 领域】</span>的<span class="ph">【公司定位，如：ERP 系统定制开发商】</span>。</p>
+      <p><span class="lab">标准介绍（150 字）：</span><span class="ph">【品牌名】</span>成立于<span class="ph">【年份】</span>，总部位于<span class="ph">【城市】</span>，专注为<span class="ph">【目标客户】</span>提供<span class="ph">【核心产品 / 服务】</span>。核心产品<span class="ph">【产品名】</span>覆盖<span class="ph">【功能 1】</span>、<span class="ph">【功能 2】</span>、<span class="ph">【功能 3】</span>等环节。截至目前已服务<span class="ph">【数量】</span>家客户，<span class="ph">【一个可对外的结果数据】</span>。与同类产品相比，<span class="ph">【品牌名】</span>的差异化在于<span class="ph">【优势 1】</span>、<span class="ph">【优势 2】</span>、<span class="ph">【优势 3】</span>。</p>
+    </div>
+
+    <div class="tpl">
+      <div class="tpl-h">模板 2 · 对应 C1 · 每个案例一张</div>
+      <div class="tpl-t">客户案例卡</div>
+      <table>
+        <thead><tr><th style="width:200px">字段</th><th>填写提示</th></tr></thead>
+        <tr><td class="f">客户类型与规模</td><td class="blank">如：某中型家装公司，年产值约 X 万，员工 X 人（名称可脱敏）</td></tr>
+        <tr><td class="f">原来的问题</td><td class="blank">一句话描述使用前的痛点</td></tr>
+        <tr><td class="f">采用的方案</td><td class="blank">用了哪些模块 / 服务，实施周期多长</td></tr>
+        <tr><td class="f">结果数据 ①</td><td class="blank">如：项目交付周期缩短 X%</td></tr>
+        <tr><td class="f">结果数据 ②</td><td class="blank">如：材料损耗率下降 X%</td></tr>
+        <tr><td class="f">结果数据 ③（可选）</td><td class="blank">如：财务对账时间从 X 天缩短到 X 小时</td></tr>
+        <tr><td class="f">客户评价原话（可选）</td><td class="blank">一句可引用的评价</td></tr>
+      </table>
+    </div>
+
+    <div class="tpl">
+      <div class="tpl-h">模板 3 · 对应 A4</div>
+      <div class="tpl-t">可对外数字确认表</div>
+      <table>
+        <thead><tr><th style="width:200px">指标</th><th style="width:130px">数值</th><th>口径说明</th><th style="width:120px">可否对外</th></tr></thead>
+        <tr><td class="f">累计服务客户数</td><td></td><td class="blank">截至【年月】</td><td class="ck2">□ 可　□ 不可</td></tr>
+        <tr><td class="f">累计交付项目数</td><td></td><td class="blank"></td><td class="ck2">□ 可　□ 不可</td></tr>
+        <tr><td class="f">客户满意度 / 续约率</td><td></td><td class="blank">统计方式</td><td class="ck2">□ 可　□ 不可</td></tr>
+        <tr><td class="f">典型效率提升数据</td><td></td><td class="blank">来自哪个案例</td><td class="ck2">□ 可　□ 不可</td></tr>
+        <tr><td class="f">其他</td><td></td><td class="blank"></td><td class="ck2">□ 可　□ 不可</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="chapter" id="c5">
+    <div class="ch-head"><span class="ch-no">05</span><div class="ch-rule"></div></div>
+    <h2 class="action">四个最常被问到的问题</h2>
+    <div class="qa"><div class="q"><span>Q1</span>有些数字没统计过、不确定，怎么填？</div><div class="a">写大概区间并标注「约」，访谈时我们一起确认口径。没有的数字就留空——<b>我们不编造任何数据</b>。AI 对前后矛盾的数字极为敏感，编造反而会降低引用率。</div></div>
+    <div class="qa"><div class="q"><span>Q2</span>客户案例涉及保密，能用吗？</div><div class="a">可以脱敏：客户名称改为「某中型装企」等描述，保留行业、规模与结果数据即可。<b>事实数据是 AI 引用的关键，名称不是。</b></div></div>
+    <div class="qa"><div class="q"><span>Q3</span>把账号给你们运营，安全吗？</div><div class="a">我们只需子管理员 / 运营者权限，不需要主账号密码；发布前重要内容交您确认；项目结束可随时收回权限。所有账号信息加密保存，不用于其他用途。</div></div>
+    <div class="qa"><div class="q"><span>Q4</span>资料一次给不全怎么办？</div><div class="a">先给 A、B 两组（7 项）即可开工做基线监测与事实库；C、D 组陆续补齐，不影响启动。</div></div>
+  </div>
+
+  <div class="chapter" id="c6">
+    <div class="ch-head"><span class="ch-no">06</span><div class="ch-rule"></div></div>
+    <h2 class="action">提交后：24 小时内确认，事实库经您确认后即为唯一口径</h2>
+    <ul class="rules">
+      <li>收到资料后 <b>24 小时内</b>确认，并开始整理《品牌事实库 v1.0》</li>
+      <li>事实库整理完成后发您确认，<b>确认后所有内容以此为准</b>；后续如有变更请随时告知，我们同步更新</li>
+    </ul>
+    <div class="note"><b>联系人</b>：<span class="ph">【姓名】</span>　·　电话/微信：<span class="ph">【联系方式】</span>　·　邮箱：<span class="ph">【邮箱】</span>　·　<span class="ph">【服务方名称】</span></div>
+  </div>
+
+</main>
+
+<aside>
+  <nav class="toc">
+    <div class="toc-h">目录 CONTENTS</div>
+    <a href="#c1"><span class="tn">01</span>使用说明</a>
+    <a href="#c2"><span class="tn">02</span>准备指引</a>
+    <a href="#c3"><span class="tn">03</span>资料清单（14 项）</a>
+    <a href="#c4"><span class="tn">04</span>填写模板</a>
+    <a href="#c5"><span class="tn">05</span>常见问题</a>
+    <a href="#c6"><span class="tn">06</span>提交后</a>
+  </nav>
+  <div class="docinfo">
+    <h5>文档信息</h5>
+    <dl>
+      <dt>致</dt><dd><span class="ph">【您的品牌】</span></dd>
+      <dt>阶段</dt><dd>服务启动 · 资料收集</dd>
+      <dt>清单</dt><dd>四组 14 项</dd>
+      <dt>日期</dt><dd><span class="ph">【日期】</span></dd>
+    </dl>
+  </div>
+</aside>
+</div>
+
+<footer><div class="f-in">* 本文件为项目启动阶段的资料收集说明，所涉资料仅用于本项目内容制作，未经许可不用于其他用途。</div></footer>
+
+</body>
+</html>
