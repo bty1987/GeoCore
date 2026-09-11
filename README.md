@@ -46,6 +46,8 @@ GeoCore/
 |---|---|
 | `GEO客户启动书-模板.md` | 售前说服用：为什么做 + 效果预期 + 承诺边界 + 14 项启动资料清单。【】占位按客户替换 |
 | `GEO客户资料准备清单-模板.md` | 客户确认合作后收资料用：P0/P1 优先级、3 个填写模板、FAQ、命名规范。**与启动书分工勿混：启动书=售前，清单=售后** |
+| `客户宣传手册-模板.md` | 对外宣传册源稿（客户直接阅读）：双线业务介绍，六节结构；不放价格与商务条款，空针只用试验田口径 |
+| `GEO产品描述-模板.md` | GEO 独立产品描述多场景文案：一句话版 / 30 字电梯版 / 200 字标准版 / 详细版（含适合谁·不适合谁），按场合取用 |
 
 ### 04-定制开发线/
 | 文件 | 说明 |
@@ -63,6 +65,7 @@ GeoCore/
 | `GEO客户启动书/` | 启动书/资料清单 PDF 产线：design-demos（选定 V2 咨询报告体）+ 两份已交付 PDF（各 6 页，judge 验收）+ scripts/export_pdf.js + assets（平台 logo base64 缓存） |
 | `合伙人转述手册/` | 转述手册 PDF 产线：design-demos/consulting-report.html + `合伙人转述手册-咨询报告体.pdf`（9 页，judge 三轮验收）+ render/ 逐页 PNG |
 | `售前聊作战包/` | 售前聊 PDF 产线：design-demos/consulting-report.html + `售前聊与预诊断作战包.pdf`（5 页，judge 验收通过）+ scripts/export_pdf.js；豁免记录 direction-approved.md |
+| `客户宣传手册/` | 对外宣传册 PDF 产线：design-demos/consulting-report.html + `客户宣传手册-团队与业务介绍.pdf`（5 页）+ scripts/export_pdf.js；direction-approved.md |
 
 ### 99-归档/
 | 文件 | 说明 |

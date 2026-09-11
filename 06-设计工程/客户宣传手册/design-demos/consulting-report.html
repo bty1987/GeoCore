@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>企业服务介绍 · 团队与业务手册</title>
+<!-- 单版 · 咨询报告体（免门依据见 direction-approved.md：同风格追加惯例 + 用户本会话两次明示单版直用） -->
+<!-- 家族基因：GEO客户启动书 v2 / 转述手册 / 作战包 —— 深蓝刊头 #051C2C × 青绿 #0E7C66 × 宋体结论式标题 × hairline 表格 × 金色虚线占位 -->
+<!-- form 来自内容的哪里：这是对外宣传册——封面即价值主张（"找到您+接进系统"一语双关），〇节用双线表+闭环链条图立住"两头都在"的记忆点；金色虚线占位符提示委托人发送前替换 -->
+<!-- assumptions：客户直接阅读；无图片需求（排印型宣传册）；价格与商务条款一律不出现（确认函层面）；空针只用"自建试验田"口径 -->
+<style>
+  :root{
+    --navy:#051C2C; --navy-2:#0A2E44; --ink:#15242F; --ink-2:#4A6070;
+    --hairline:#D8E0E6; --panel:#F4F7F9; --green:#0E7C66;
+    --serif:"Songti SC","Noto Serif SC","Source Han Serif SC",STSong,serif;
+    --sans:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--sans);color:var(--ink);background:#fff;line-height:1.8;text-wrap:pretty}
+  .ph{border-bottom:1.5px dashed #B99A4E;padding:0 2px;font-weight:600;color:#7A6224}
+
+  /* ── 刊头 ── */
+  .masthead{background:var(--navy);color:#fff}
+  .mast-top{display:flex;justify-content:space-between;align-items:center;padding:16px 56px;border-bottom:1px solid rgba(255,255,255,.16)}
+  .mast-top .firm{font-family:var(--serif);font-size:17px;font-weight:700;letter-spacing:.12em}
+  .mast-top .doc-no{font-family:var(--mono);font-size:12px;color:#8FA6B5;letter-spacing:.14em}
+  .mast-in{max-width:1240px;margin:0 auto;padding:52px 56px 0}
+  .masthead .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.24em;color:#7E9AAC;margin-bottom:18px}
+  .masthead h1{font-family:var(--serif);font-size:clamp(30px,3.6vw,44px);font-weight:700;line-height:1.35;max-width:22em;margin-bottom:14px}
+  .masthead h1 em{font-style:normal;border-bottom:3px solid var(--green);padding-bottom:2px}
+  .masthead .sub{font-size:16px;color:#B7C7D2;margin-bottom:28px}
+  .meta{display:flex;border:1px solid rgba(255,255,255,.2);border-radius:8px;overflow:hidden;max-width:920px;margin-bottom:36px}
+  .meta div{flex:1;padding:12px 18px;font-size:12.5px;color:#8FA6B5;border-left:1px solid rgba(255,255,255,.2)}
+  .meta div:first-child{border-left:none}
+  .meta b{display:block;color:#fff;font-size:14px;font-weight:600;margin-top:2px}
+
+  /* ── 双栏骨架 ── */
+  .frame{display:grid;grid-template-columns:1fr 300px;gap:44px;max-width:1240px;margin:0 auto;padding:46px 56px 0}
+  .chapter{margin-bottom:64px}
+  .ch-head{display:flex;align-items:baseline;gap:14px;margin-bottom:8px;break-after:avoid}
+  .ch-no{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--green);letter-spacing:.04em}
+  h2.action{font-family:var(--serif);font-size:23px;font-weight:700;line-height:1.45;max-width:30em}
+  .lead{font-size:14.5px;color:var(--ink-2);max-width:44em;margin:0 0 20px}
+  .lead b{color:var(--ink)}
+  h3.sub-head{font-family:var(--serif);font-size:17px;font-weight:700;margin:26px 0 12px;break-after:avoid}
+  h3.sub-head .tag{font-family:var(--mono);font-size:12px;color:var(--green);font-weight:700;margin-right:8px}
+  p.body{font-size:14.5px;margin-bottom:14px;max-width:46em}
+  p.body b{color:var(--ink)}
+
+  /* ── 表格 ── */
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  thead{display:table-header-group}
+  th{background:var(--navy);color:#fff;text-align:left;font-weight:600;font-size:13px;padding:10px 14px;letter-spacing:.04em}
+  td{padding:12px 14px;border-bottom:1px solid var(--hairline);vertical-align:top;line-height:1.75}
+  tr:nth-child(even) td{background:var(--panel)}
+  .kv td:first-child{width:170px;color:var(--ink-2);font-size:13px}
+  .kv td:first-child b{color:var(--ink)}
+
+  /* ── 服务卡网格 ── */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--hairline);border-radius:8px;overflow:hidden;margin-bottom:14px}
+  .grid2 .cell{padding:14px 18px;border-left:1px solid var(--hairline);border-top:1px solid var(--hairline);break-inside:avoid}
+  .grid2 .cell:nth-child(-n+2){border-top:none}
+  .grid2 .cell:nth-child(odd){border-left:none}
+  .grid2 .cell b{font-family:var(--serif);font-size:15px;display:block;margin-bottom:3px}
+  .grid2 .cell span{font-size:13px;color:var(--ink-2);line-height:1.7;display:block}
+
+  /* ── 链条图 ── */
+  .chain{border:1px solid var(--hairline);border-radius:8px;overflow:hidden;margin:6px 0 14px}
+  .cl-cap{background:var(--navy);color:#fff;font-family:var(--serif);font-size:15px;font-weight:700;padding:11px 18px;letter-spacing:.02em}
+  .cl-cap em{font-style:normal;color:#6FC5B4}
+  .cline{display:grid;grid-template-columns:44px 1fr 170px;border-top:1px solid var(--hairline);break-inside:avoid}
+  .cline .no{font-family:var(--mono);font-size:12.5px;color:var(--green);font-weight:700;padding:14px 0 0 16px}
+  .cline .what{padding:12px 16px;font-size:14px}
+  .cline .what .q{font-family:var(--serif);font-weight:700;display:block}
+  .cline .what .a{font-size:12.5px;color:var(--ink-2);display:block;margin-top:1px}
+  .cline .sys{padding:14px 16px 12px;font-size:13px;border-left:1px dashed var(--hairline)}
+  .cline .sys b{display:inline-block;background:var(--panel);border:1px solid var(--hairline);color:var(--green);font-family:var(--mono);font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px}
+  .cl-foot{background:var(--panel);padding:10px 18px;font-size:13.5px;color:var(--ink-2);border-top:1px solid var(--hairline)}
+  .cl-foot b{color:var(--ink)}
+
+  /* ── 提示条 ── */
+  .rule{background:var(--navy);color:#fff;border-radius:8px;padding:14px 20px;font-size:14px;margin:16px 0;break-inside:avoid}
+  .rule b{color:#6FC5B4}
+  .note{background:var(--panel);border:1px solid var(--hairline);border-radius:8px;padding:14px 18px;font-size:13.5px;color:var(--ink-2);margin:14px 0;break-inside:avoid}
+  .note b{color:var(--ink)}
+
+  /* ── 下一步 ── */
+  ol.next{list-style:none;counter-reset:n;border-top:1px solid var(--hairline)}
+  ol.next li{position:relative;padding:13px 0 13px 52px;border-bottom:1px solid var(--hairline);font-size:14.5px;break-inside:avoid}
+  ol.next li b{font-family:var(--serif)}
+  ol.next li span{display:block;font-size:13px;color:var(--ink-2)}
+  ol.next li::before{content:counter(n,decimal-leading-zero);counter-increment:n;position:absolute;left:4px;top:15px;font-family:var(--mono);font-weight:700;color:var(--green);font-size:14px}
+
+  /* ── 联系块 ── */
+  .cta{border:1.5px dashed var(--green);border-radius:10px;background:#F7FBFA;padding:18px 22px;margin:12px 0 4px;break-inside:avoid}
+  .cta .t-tag{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--green);color:#fff;border-radius:4px;padding:3px 9px;letter-spacing:.12em;margin-bottom:10px}
+  .cta p{font-size:14.5px;line-height:2}
+
+  /* ── aside 目录 ── */
+  aside{position:sticky;top:24px;align-self:start}
+  .toc{border:1px solid var(--hairline);border-radius:8px;overflow:hidden;margin-bottom:16px}
+  .toc .toc-h{background:var(--panel);font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;color:var(--ink-2);padding:10px 16px;border-bottom:1px solid var(--hairline)}
+  .toc a{display:flex;gap:10px;text-decoration:none;color:var(--ink);font-size:13px;padding:9px 16px;border-bottom:1px solid var(--hairline)}
+  .toc a:last-child{border-bottom:none}
+  .toc a:hover{background:var(--panel)}
+  .toc a .tn{font-family:var(--mono);color:var(--green);font-weight:700;font-size:12px;padding-top:2px}
+  .docinfo{border:1px solid var(--hairline);border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:14px 16px;font-size:12.5px;color:var(--ink-2);line-height:1.9}
+  .docinfo h5{font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;color:var(--ink-2);margin-bottom:8px;font-weight:600}
+  .docinfo b{color:var(--ink)}
+
+  /* ── 页尾 ── */
+  footer{margin-top:56px;background:var(--navy);color:#8FA6B5;padding:24px 56px;font-size:12.5px;line-height:1.8}
+  footer .f-in{max-width:1240px;margin:0 auto}
+
+  @media (max-width:960px){
+    .frame{grid-template-columns:1fr;padding:32px 24px 0}
+    aside{position:static;order:-1}
+    .grid2{grid-template-columns:1fr}
+    .grid2 .cell{border-left:none;border-top:1px solid var(--hairline)}
+    .grid2 .cell:nth-child(-n+2){border-top:1px solid var(--hairline)}
+    .grid2 .cell:first-child{border-top:none}
+    .mast-in,.mast-top,footer{padding-left:24px;padding-right:24px}
+  }
+  @page{size:A4;margin:8mm 0 16mm}
+  @media print{
+    aside{display:none}
+    .frame{grid-template-columns:1fr;gap:0;padding:40px 48px 4px}
+    .masthead{padding-bottom:26px}
+    .mast-in{padding:28px 48px 0}
+    .mast-top{padding:14px 48px}
+    footer{background:#fff;color:#8AA0AF;border-top:1px solid #D8E0E6;padding:10px 48px 0;margin-top:0;break-inside:avoid}
+    footer .f-in{margin:0}
+    h2.action,.ch-head,h3.sub-head{break-after:avoid}
+    .lead{break-after:avoid}
+    p{orphans:3;widows:3}
+    table{break-inside:auto}
+    tr,th{break-inside:avoid}
+    .chain,.cline,.rule,.note,.grid2 .cell,.cta{break-inside:avoid}
+    .grid2{break-inside:auto}
+    .chapter{break-inside:auto}
+    body{background:#fff}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="mast-top">
+    <div class="firm"><span class="ph">【团队/公司名称】</span></div>
+    <div class="doc-no">BR-2026-09 · 客户资料</div>
+  </div>
+  <div class="mast-in">
+    <div class="kicker">企业 AI 可见性 × 数字化定制服务 · 能力介绍手册</div>
+    <h1>让客户在 AI 里<em>找到您</em>，把找到的生意<em>接进系统</em></h1>
+    <div class="sub"><span class="ph">【团队/公司名称】</span> · 团队与业务介绍</div>
+    <div class="meta">
+      <div>业务线<b>AI 可见性 + 系统开发</b></div>
+      <div>交付方式<b>全程数据截图可验证</b></div>
+      <div>您的现有系统<b>金蝶/用友不推翻</b></div>
+      <div>第一步<b>48 小时 AI 预诊断</b></div>
+    </div>
+  </div>
+</header>
+
+<div class="frame">
+<main>
+
+  <!-- 〇 一页看懂我们 -->
+  <section class="chapter" id="c0">
+    <div class="ch-head"><span class="ch-no">00</span><h2 class="action">一页看懂我们</h2></div>
+    <p class="lead">我们是一支覆盖<b>产品设计、开发、测试、运维、培训</b>全环节的技术团队：向前做 AI 可见性（GEO）——让您的客户在豆包、腾讯元宝、DeepSeek 里问到您；向后做系统开发——把 AI 带来的生意用系统接住。</p>
+    <table>
+      <thead><tr><th style="width:190px">业务线</th><th>解决什么</th><th style="width:42%">交付什么</th></tr></thead>
+      <tr><td><b>AI 可见性（GEO）</b></td><td>越来越多客户「问 AI」而不是搜百度——AI 推荐名单里有没有您，正在直接影响成交</td><td>基线诊断 → 持续监测 → 优化执行 → 战略托管，全程数据截图可验证</td></tr>
+      <tr><td><b>系统开发</b></td><td>生意进来之后：线索没人跟、库存对不上、审批靠签字、数据靠人工导</td><td>进销存 / CRM / 财务对接 / OA / 行业 ERP / 定制开发 + 数据打通</td></tr>
+    </table>
+    <div class="chain">
+      <div class="cl-cap">两线合起来：<em>GEO 把客户带到门口，系统把生意接住</em></div>
+      <div class="cline"><div class="no">01</div><div class="what"><span class="q">客户在 AI 里问「<span class="ph">【您的行业】</span>哪家好」</span><span class="a">AI 的推荐名单决定他先找谁——这是 GEO 的战场</span></div><div class="sys"><b>AI 可见性</b></div></div>
+      <div class="cline"><div class="no">02</div><div class="what"><span class="q">生意进来了，线索谁来跟、报价谁来管？</span><span class="a">靠销售记忆和微信群，跟丢没人知道</span></div><div class="sys"><b>CRM 客户管理</b></div></div>
+      <div class="cline"><div class="no">03</div><div class="what"><span class="q">谈成了，货、库存、账怎么对？</span><span class="a">靠 Excel 和手工台账，盘点熬夜</span></div><div class="sys"><b>进销存 / 财务对接</b></div></div>
+      <div class="cline"><div class="no">04</div><div class="what"><span class="q">人要干活，审批、流程怎么走？</span><span class="a">审批靠签字、单据满天飞</span></div><div class="sys"><b>OA 办公自动化</b></div></div>
+      <div class="cl-foot"><b>一般的营销公司只能做前半段，一般的软件公司只能做后半段——我们两头都在。</b></div>
+    </div>
+  </section>
+
+  <!-- 一 为什么是现在 -->
+  <section class="chapter" id="c1">
+    <div class="ch-head"><span class="ch-no">01</span><h2 class="action">为什么是现在</h2></div>
+    <table class="kv">
+      <tr><td><b>流量入口在迁移</b></td><td>豆包、腾讯元宝的月活已进入国民级行列，越来越多决策者先问 AI、再搜索</td></tr>
+      <tr><td><b>AI 推荐赢家通吃</b></td><td>搜索首页有 10 个位置，AI 一次回答只推荐 3–5 家——<b>早卡位者吃掉整个生态位</b></td></tr>
+      <tr><td><b>大多数企业还没起步</b></td><td>现在布局的企业少；等竞争对手先进场，要花几倍的代价抢回来</td></tr>
+    </table>
+  </section>
+
+  <!-- 二 GEO 服务 -->
+  <section class="chapter" id="c2">
+    <div class="ch-head"><span class="ch-no">02</span><h2 class="action">AI 可见性（GEO）服务</h2></div>
+    <p class="lead">针对您的业务，在<b>豆包 / 腾讯元宝 / DeepSeek</b> 三大平台（可扩展 Kimi、文心一言等）上，让 AI 在回答里<b>提到您、说对您、推荐您</b>。</p>
+    <table>
+      <thead><tr><th style="width:170px">层级</th><th>内容</th><th style="width:34%">说明</th></tr></thead>
+      <tr><td><b>L1 基线诊断</b></td><td>30–50 个真实用户问法 × 三平台实测，出《AI 可见性基线报告》：现在 AI 怎么说您、竞品排哪</td><td>第一次合作从这里开始，7 天交付</td></tr>
+      <tr><td><b>L2 持续监测</b></td><td>每周监测提及率、推荐位次、竞品动态，周报 + 月报，全程截图</td><td>想持续看到自己位置的客户</td></tr>
+      <tr><td><b>L3 优化执行 ★主力</b></td><td>监测 + 内容生产分发 + 三大生态布局（微信系 / 字节系 / 权威语料）</td><td>想真正进入推荐名单的客户</td></tr>
+      <tr><td><b>L4 战略托管</b></td><td>竞品对标、行业报告、渠道资源整合</td><td>有更高目标的企业</td></tr>
+    </table>
+
+    <h3 class="sub-head"><span class="tag">2.1</span>效果规律（先讲清楚，再谈合作）</h3>
+    <table>
+      <thead><tr><th style="width:170px">效果层</th><th>含义</th><th style="width:26%">见效时间</th></tr></thead>
+      <tr><td><b>品牌词防守</b></td><td>问「您品牌怎么样」时，AI 描述准确、口径正面</td><td>2–4 周</td></tr>
+      <tr><td><b>场景词渗透</b></td><td>问「您的痛点怎么解决」时，答案中提到您</td><td>4–8 周</td></tr>
+      <tr><td><b>品类词进攻</b></td><td>问「您行业哪家好」时，您进入推荐名单</td><td>6–12 周起步，持续爬升</td></tr>
+    </table>
+    <div class="rule"><b>我们的承诺方式：</b>承诺工作量与过程数据（每周发布篇数、监测频次、周报），以截图证据呈现趋势；<b>不承诺「保证第一」或「保证被推荐」</b>——目前没有任何人能技术上保证这一点，敢于这样承诺的服务商反而需要警惕。具体目标以您行业的基线数据为准，做不到的数字我们不签。</div>
+  </section>
+
+  <!-- 三 系统开发 -->
+  <section class="chapter" id="c3">
+    <div class="ch-head"><span class="ch-no">03</span><h2 class="action">系统开发服务</h2></div>
+    <div class="grid2">
+      <div class="cell"><b>进销存</b><span>进货、卖货、库存一本账，手机随时看</span></div>
+      <div class="cell"><b>CRM 客户管理</b><span>每个客户谈到哪一步、谁负责、下次什么时候跟，系统替您记着</span></div>
+      <div class="cell"><b>财务对接</b><span>开票、对账、报表自动出，和金蝶这类财务软件直接打通</span></div>
+      <div class="cell"><b>OA 办公自动化</b><span>审批、请假、报销，手机上一圈走完，不再追着签字</span></div>
+      <div class="cell"><b>行业 ERP</b><span>人、财、货、销放进一个系统，老板一眼看到全局</span></div>
+      <div class="cell"><b>系统集成</b><span>让两个不说话的系统说话，砍掉人工导表</span></div>
+      <div class="cell"><b>AI 应用定制</b><span>把 AI 装进您的具体业务里用起来</span></div>
+      <div class="cell"><b>定制开发</b><span>您业务里最别扭的那段，照您的做法做一个系统出来</span></div>
+    </div>
+
+    <h3 class="sub-head"><span class="tag">3.1</span>现成产品（不是从零做，改造后快速上线）</h3>
+    <table>
+      <thead><tr><th style="width:32%">产品</th><th>一句话</th><th style="width:30%">适合</th></tr></thead>
+      <tr><td><span class="ph">【环保行业 ERP · 名称待填】</span></td><td>环保企业的项目、合同、开票、台账一体化</td><td>环保工程 / 检测 / 危废企业</td></tr>
+      <tr><td><span class="ph">【家装行业 AI 系统 · 名称待填】</span></td><td>装修公司的 AI 获客与客户管理</td><td>装修公司 / 家装门店</td></tr>
+      <tr><td><span class="ph">【金蝶发票集成组件 · 名称待填】</span></td><td>发票自动进金蝶，不再手工录票</td><td>所有在用金蝶的企业</td></tr>
+    </table>
+    <div class="note"><b>怎么合作</b>：需求沟通 → 方案与报价（《服务确认函》书面出具）→ 开发 → 培训 → 上线 → 维护期。<b>不要求您推翻现有系统</b>——擅长在金蝶、用友等财务软件基础上做二次开发与数据打通<span class="ph">【金蝶生态口径确认后可强化此句】</span>。范围以确认函为准，新增需求走变更单，交付含培训与文档。</div>
+  </section>
+
+  <!-- 四 凭什么信我们 -->
+  <section class="chapter" id="c4">
+    <div class="ch-head"><span class="ch-no">04</span><h2 class="action">凭什么信我们</h2></div>
+    <table class="kv">
+      <tr><td><b>自建试验田</b></td><td>我们用自有公司按完整 12 周流程真实执行 GEO 方法论——账号矩阵、40 条监测词、每周内容与监测，全流程数据透明。<b>敢公开自家试验数据的团队，比匿名的「某客户案例」可信</b>。洽谈时可现场展示执行台账与截图证据链</td></tr>
+      <tr><td><b>证据链交付</b></td><td>每周监测数据表、每条提及的原始回答截图与来源链接、归因分析——<b>所有结论您自己打开 App 问一遍即可验证</b></td></tr>
+      <tr><td><b>完整交付底子</b></td><td>覆盖产品 / 开发 / 测试 / 运维 / 培训全环节<span class="ph">【补充团队年限/人数口径】</span>，甲方项目交付经验<span class="ph">【补充 1–2 个可对外案例】</span></td></tr>
+      <tr><td><b>承诺纪律</b></td><td>指标写进《服务确认函》——<b>敢承诺，也敢写「不承诺什么」</b></td></tr>
+    </table>
+  </section>
+
+  <!-- 五 下一步 -->
+  <section class="chapter" id="c5">
+    <div class="ch-head"><span class="ch-no">05</span><h2 class="action">下一步（三步，先看事实再决定）</h2></div>
+    <ol class="next">
+      <li><b>AI 预诊断（48 小时）</b><span>用您行业的真实问法在三平台实测一遍您和竞品，出一页快照——每条带截图，您自己可以复核</span></li>
+      <li><b>看基线报告（7 天）</b><span>30–50 个问法完整实测，《AI 可见性基线报告》讲清楚差距和机会，目标用数据定</span></li>
+      <li><b>定方案</b><span>按您的行业和预算出正式方案与《服务确认函》——范围、价格、周期白纸黑字</span></li>
+    </ol>
+    <div class="cta">
+      <div class="t-tag">联系我们</div>
+      <p><span class="ph">【合伙人/对接人姓名】</span> · <span class="ph">【电话/微信】</span><br>
+      <span class="ph">【团队/公司名称】</span> · <span class="ph">【日期】</span></p>
+    </div>
+  </section>
+
+</main>
+
+<aside>
+  <div class="toc">
+    <div class="toc-h">手册导航</div>
+    <a href="#c0"><span class="tn">00</span>一页看懂我们</a>
+    <a href="#c1"><span class="tn">01</span>为什么是现在</a>
+    <a href="#c2"><span class="tn">02</span>AI 可见性（GEO）服务</a>
+    <a href="#c3"><span class="tn">03</span>系统开发服务</a>
+    <a href="#c4"><span class="tn">04</span>凭什么信我们</a>
+    <a href="#c5"><span class="tn">05</span>下一步</a>
+  </div>
+  <div class="docinfo">
+    <h5>阅读提示</h5>
+    <b>关心获客</b>——看第 02 节；<br>
+    <b>关心内部管理</b>——看第 03 节；<br>
+    <b>关心靠不靠谱</b>——看第 04 节，所有结论可自行验证。
+  </div>
+</aside>
+</div>
+
+<footer><div class="f-in">* 本手册为业务介绍资料；具体服务范围、价格与效果目标以双方签署的《服务确认函》及协议为准。</div></footer>
+
+</body>
+</html>
