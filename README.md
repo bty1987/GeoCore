@@ -62,6 +62,7 @@ GeoCore/
 |---|---|
 | `GEO客户启动书/` | 启动书/资料清单 PDF 产线：design-demos（选定 V2 咨询报告体）+ 两份已交付 PDF（各 6 页，judge 验收）+ scripts/export_pdf.js + assets（平台 logo base64 缓存） |
 | `合伙人转述手册/` | 转述手册 PDF 产线：design-demos/consulting-report.html + `合伙人转述手册-咨询报告体.pdf`（9 页，judge 三轮验收）+ render/ 逐页 PNG |
+| `售前聊作战包/` | 售前聊 PDF 产线：design-demos/consulting-report.html + `售前聊与预诊断作战包.pdf`（5 页，judge 验收通过）+ scripts/export_pdf.js；豁免记录 direction-approved.md |
 
 ### 99-归档/
 | 文件 | 说明 |
