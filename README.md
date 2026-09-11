@@ -66,6 +66,7 @@ GeoCore/
 | `合伙人转述手册/` | 转述手册 PDF 产线：design-demos/consulting-report.html + `合伙人转述手册-咨询报告体.pdf`（9 页，judge 三轮验收）+ render/ 逐页 PNG |
 | `售前聊作战包/` | 售前聊 PDF 产线：design-demos/consulting-report.html + `售前聊与预诊断作战包.pdf`（5 页，judge 验收通过）+ scripts/export_pdf.js；豁免记录 direction-approved.md |
 | `客户宣传手册/` | 对外宣传册 PDF 产线：design-demos/consulting-report.html + `客户宣传手册-团队与业务介绍.pdf`（5 页）+ scripts/export_pdf.js；direction-approved.md |
+| `GEO服务说明-客户版/` | GEO 单品客户版 PDF 产线：design-demos/consulting-report.html + `GEO服务说明-客户版.pdf`（4 页，judge 4/4 通过）；与《客户宣传手册》分工：手册=双线总览，本册=GEO 单品深版 |
 
 ### 99-归档/
 | 文件 | 说明 |

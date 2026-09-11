@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>AI 可见性优化（GEO）服务说明 · 客户版</title>
+<!-- 单版 · 咨询报告体（免门依据见 direction-approved.md） -->
+<!-- 家族基因：GEO客户启动书 v2 / 转述手册 / 作战包 / 客户宣传手册 —— 深蓝 #051C2C × 青绿 #0E7C66 × 宋体标题 × hairline 表格 × 金色占位 -->
+<!-- 与《客户宣传手册》分工：手册=双线总览；本册=GEO 单品深版，通篇客户视角（"您"），只讲 GEO -->
+<!-- form 来自内容的哪里：客户的第一个动作是"自己打开 App 试一试"——所以 01 节把这句话做成钩子，全文围绕"您会遇到什么→我们替您做什么→您每周拿到什么→您怎么验证"展开 -->
+<!-- assumptions：客户直接阅读；无图片；无价格与商务条款；【】为占位符 -->
+<style>
+  :root{
+    --navy:#051C2C; --navy-2:#0A2E44; --ink:#15242F; --ink-2:#4A6070;
+    --hairline:#D8E0E6; --panel:#F4F7F9; --green:#0E7C66;
+    --serif:"Songti SC","Noto Serif SC","Source Han Serif SC",STSong,serif;
+    --sans:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--sans);color:var(--ink);background:#fff;line-height:1.8;text-wrap:pretty}
+  .ph{border-bottom:1.5px dashed #B99A4E;padding:0 2px;font-weight:600;color:#7A6224}
+
+  /* ── 刊头 ── */
+  .masthead{background:var(--navy);color:#fff}
+  .mast-top{display:flex;justify-content:space-between;align-items:center;padding:16px 56px;border-bottom:1px solid rgba(255,255,255,.16)}
+  .mast-top .firm{font-family:var(--serif);font-size:17px;font-weight:700;letter-spacing:.12em}
+  .mast-top .doc-no{font-family:var(--mono);font-size:12px;color:#8FA6B5;letter-spacing:.14em}
+  .mast-in{max-width:1240px;margin:0 auto;padding:52px 56px 0}
+  .masthead .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.24em;color:#7E9AAC;margin-bottom:18px}
+  .masthead h1{font-family:var(--serif);font-size:clamp(30px,3.6vw,44px);font-weight:700;line-height:1.35;max-width:22em;margin-bottom:14px}
+  .masthead h1 em{font-style:normal;border-bottom:3px solid var(--green);padding-bottom:2px}
+  .masthead .sub{font-size:16px;color:#B7C7D2;margin-bottom:28px}
+  .meta{display:flex;border:1px solid rgba(255,255,255,.2);border-radius:8px;overflow:hidden;max-width:920px;margin-bottom:36px}
+  .meta div{flex:1;padding:12px 18px;font-size:12.5px;color:#8FA6B5;border-left:1px solid rgba(255,255,255,.2)}
+  .meta div:first-child{border-left:none}
+  .meta b{display:block;color:#fff;font-size:14px;font-weight:600;margin-top:2px}
+
+  /* ── 双栏骨架 ── */
+  .frame{display:grid;grid-template-columns:1fr 300px;gap:44px;max-width:1240px;margin:0 auto;padding:46px 56px 0}
+  .chapter{margin-bottom:64px}
+  .ch-head{display:flex;align-items:baseline;gap:14px;margin-bottom:8px;break-after:avoid}
+  .ch-no{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--green);letter-spacing:.04em}
+  h2.action{font-family:var(--serif);font-size:23px;font-weight:700;line-height:1.45;max-width:30em}
+  .lead{font-size:14.5px;color:var(--ink-2);max-width:44em;margin:0 0 20px}
+  .lead b{color:var(--ink)}
+  h3.sub-head{font-family:var(--serif);font-size:17px;font-weight:700;margin:26px 0 12px;break-after:avoid}
+  h3.sub-head .tag{font-family:var(--mono);font-size:12px;color:var(--green);font-weight:700;margin-right:8px}
+  p.body{font-size:14.5px;margin-bottom:14px;max-width:46em}
+  p.body b{color:var(--ink)}
+
+  /* ── 表格 ── */
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  thead{display:table-header-group}
+  th{background:var(--navy);color:#fff;text-align:left;font-weight:600;font-size:13px;padding:10px 14px;letter-spacing:.04em}
+  td{padding:12px 14px;border-bottom:1px solid var(--hairline);vertical-align:top;line-height:1.75}
+  tr:nth-child(even) td{background:var(--panel)}
+  .kv td:first-child{width:190px;color:var(--ink-2);font-size:13px}
+  .kv td:first-child b{color:var(--ink)}
+
+  /* ── 平台条 ── */
+  .plats{display:flex;gap:12px;flex-wrap:wrap;margin:4px 0 14px}
+  .plat{flex:1;min-width:150px;background:var(--panel);border:1px solid var(--hairline);border-radius:8px;padding:12px 16px;break-inside:avoid}
+  .plat b{font-family:var(--serif);font-size:15px;display:block}
+  .plat span{font-size:12.5px;color:var(--ink-2);line-height:1.7;display:block;margin-top:2px}
+
+  /* ── 提示条 ── */
+  .rule{background:var(--navy);color:#fff;border-radius:8px;padding:14px 20px;font-size:14px;margin:16px 0;break-inside:avoid}
+  .rule b{color:#6FC5B4}
+  .note{background:var(--panel);border:1px solid var(--hairline);border-radius:8px;padding:14px 18px;font-size:13.5px;color:var(--ink-2);margin:14px 0;break-inside:avoid}
+  .note b{color:var(--ink)}
+
+  /* ── 下一步/联系 ── */
+  ol.next{list-style:none;counter-reset:n;border-top:1px solid var(--hairline)}
+  ol.next li{position:relative;padding:13px 0 13px 52px;border-bottom:1px solid var(--hairline);font-size:14.5px;break-inside:avoid}
+  ol.next li b{font-family:var(--serif)}
+  ol.next li span{display:block;font-size:13px;color:var(--ink-2)}
+  ol.next li::before{content:counter(n,decimal-leading-zero);counter-increment:n;position:absolute;left:4px;top:15px;font-family:var(--mono);font-weight:700;color:var(--green);font-size:14px}
+  .cta{border:1.5px dashed var(--green);border-radius:10px;background:#F7FBFA;padding:18px 22px;margin:12px 0 4px;break-inside:avoid}
+  .cta .t-tag{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--green);color:#fff;border-radius:4px;padding:3px 9px;letter-spacing:.12em;margin-bottom:10px}
+  .cta p{font-size:14.5px;line-height:2}
+
+  /* ── aside 目录 ── */
+  aside{position:sticky;top:24px;align-self:start}
+  .toc{border:1px solid var(--hairline);border-radius:8px;overflow:hidden;margin-bottom:16px}
+  .toc .toc-h{background:var(--panel);font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;color:var(--ink-2);padding:10px 16px;border-bottom:1px solid var(--hairline)}
+  .toc a{display:flex;gap:10px;text-decoration:none;color:var(--ink);font-size:13px;padding:9px 16px;border-bottom:1px solid var(--hairline)}
+  .toc a:last-child{border-bottom:none}
+  .toc a:hover{background:var(--panel)}
+  .toc a .tn{font-family:var(--mono);color:var(--green);font-weight:700;font-size:12px;padding-top:2px}
+  .docinfo{border:1px solid var(--hairline);border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:14px 16px;font-size:12.5px;color:var(--ink-2);line-height:1.9}
+  .docinfo h5{font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;color:var(--ink-2);margin-bottom:8px;font-weight:600}
+  .docinfo b{color:var(--ink)}
+
+  /* ── 页尾 ── */
+  footer{margin-top:56px;background:var(--navy);color:#8FA6B5;padding:24px 56px;font-size:12.5px;line-height:1.8}
+  footer .f-in{max-width:1240px;margin:0 auto}
+
+  @media (max-width:960px){
+    .frame{grid-template-columns:1fr;padding:32px 24px 0}
+    aside{position:static;order:-1}
+    .mast-in,.mast-top,footer{padding-left:24px;padding-right:24px}
+  }
+  @page{size:A4;margin:8mm 0 16mm}
+  @media print{
+    aside{display:none}
+    .frame{grid-template-columns:1fr;gap:0;padding:40px 48px 4px}
+    .masthead{padding-bottom:26px}
+    .mast-in{padding:28px 48px 0}
+    .mast-top{padding:14px 48px}
+    footer{background:#fff;color:#8AA0AF;border-top:1px solid #D8E0E6;padding:10px 48px 0;margin-top:0;break-inside:avoid}
+    footer .f-in{margin:0}
+    h2.action,.ch-head,h3.sub-head{break-after:avoid}
+    .lead{break-after:avoid}
+    p{orphans:3;widows:3}
+    table{break-inside:auto}
+    tr,th{break-inside:avoid}
+    .chain,.cline,.rule,.note,.plat,.cta,ol.next li{break-inside:avoid}
+    .chapter{break-inside:auto}
+    .chapter:last-child{margin-bottom:0}
+    .frame{padding-bottom:0}
+    body{background:#fff}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="mast-top">
+    <div class="firm"><span class="ph">【团队/公司名称】</span></div>
+    <div class="doc-no">GS-2026-09 · 客户资料</div>
+  </div>
+  <div class="mast-in">
+    <div class="kicker">AI 可见性优化（GEO）· 产品与服务说明 · 客户版</div>
+    <h1>您的客户正在问 AI——<em>答案里有没有您？</em></h1>
+    <div class="sub">GEO 产品与服务说明 —— 给企业决策人的一册实话</div>
+    <div class="meta">
+      <div>服务对象<b>有获客目标的企业决策人</b></div>
+      <div>覆盖平台<b>豆包 · 腾讯元宝 · DeepSeek</b></div>
+      <div>交付节奏<b>周报每周五 · 全程截图</b></div>
+      <div>第一步<b>48 小时免费预诊断</b></div>
+    </div>
+  </div>
+</header>
+
+<div class="frame">
+<main>
+
+  <!-- 〇 服务速览 -->
+  <section class="chapter" id="c0">
+    <div class="ch-head"><span class="ch-no">00</span><h2 class="action">这张表先看懂：您的问题 → 我们做什么 → 您拿到什么</h2></div>
+    <table>
+      <thead><tr><th style="width:36%">您可能遇到的问题</th><th style="width:30%">我们对应的服务</th><th>您拿到的结果</th></tr></thead>
+      <tr><td>客户问 AI「您这行哪家好」，名单里没有您</td><td><b>基线诊断 + 优化执行</b></td><td>《AI 可见性基线报告》看清差距 → 提及率、推荐位次逐周爬升</td></tr>
+      <tr><td>AI 提到您，但信息是错的、过时的</td><td><b>品牌词防守</b></td><td>AI 描述准确、口径正面——这比不说更影响成交，2–4 周可见改善</td></tr>
+      <tr><td>不知道竞争对手在 AI 里是什么位置</td><td><b>持续监测</b></td><td>每周提及率、推荐位次、竞品动态，全部带截图</td></tr>
+      <tr><td>不知道这些效果是真是假</td><td><b>证据链交付</b></td><td>每条结论可复现——您自己打开 App 问一遍就能验证</td></tr>
+    </table>
+    <div class="rule"><b>一句话介绍这个服务：</b>让 AI 在回答您行业的问题时，提到您、说对您、推荐您——并且让您每周亲眼看到变化。</div>
+  </section>
+
+  <!-- 一 您可能已经遇到 -->
+  <section class="chapter" id="c1">
+    <div class="ch-head"><span class="ch-no">01</span><h2 class="action">花一分钟，先自己试一试</h2></div>
+    <p class="lead">打开豆包或腾讯元宝，问一句：<b>「<span class="ph">【您的行业】</span>哪家公司好？」</b>——看看 AI 推荐的 3–5 家名单里，有没有您；再问「<span class="ph">【您的品牌】</span>怎么样」，看看它说的是否准确。</p>
+    <div class="plats">
+      <div class="plat"><b>豆包</b><span>字节系，年轻决策者的日常入口</span></div>
+      <div class="plat"><b>腾讯元宝</b><span>微信生态，客户关系链里的推荐</span></div>
+      <div class="plat"><b>DeepSeek</b><span>权威语料沉淀，回答深度最受信赖</span></div>
+    </div>
+    <p class="body">三个事实摆在面前：<b>①</b> 您的潜在客户正在换地方找供应商——过去搜百度，现在直接问 AI；<b>②</b> 搜索首页有 10 个位置，AI 一次回答只推荐 3–5 家——<b>进了名单才有牌局</b>；<b>③</b> 现在布局的企业还少，等竞争对手先做了，您要花几倍的代价抢回来。</p>
+  </section>
+
+  <!-- 二 服务内容 -->
+  <section class="chapter" id="c2">
+    <div class="ch-head"><span class="ch-no">02</span><h2 class="action">服务内容：四层服务，从"看清"到"领先"</h2></div>
+    <table>
+      <thead><tr><th style="width:175px">层级</th><th>我们做什么</th><th style="width:33%">您得到什么</th></tr></thead>
+      <tr><td><b>L1 基线诊断</b></td><td>用 30–50 条您行业的真实用户问法，在三大平台逐一实测您与竞品</td><td>《AI 可见性基线报告》：现在 AI 怎么说您、说错了什么、竞品排哪、差距多大（7 天交付）</td></tr>
+      <tr><td><b>L2 持续监测</b></td><td>每周监测提及率、推荐位次、竞品动态与内容变化</td><td>每周五周报 + 每月月报，所有数据带截图</td></tr>
+      <tr><td><b>L3 优化执行 ★主力</b></td><td>按 AI 的知识来源布局：微信生态（公众号/视频号）、字节生态（头条/抖音）、权威语料（百科/知乎/行业社区/新闻稿），持续生产与分发</td><td>AI 对您的提及与推荐逐周爬升——这是进入推荐名单的主战场</td></tr>
+      <tr><td><b>L4 战略托管</b></td><td>竞品对标、行业报告、渠道资源整合</td><td>季度战略层面的可见性优势</td></tr>
+    </table>
+    <div class="note"><b>为什么是这三个生态？</b>三大平台的知识来源各有偏爱：元宝的种子内容约六成来自微信生态，豆包偏好字节系内容，DeepSeek 依赖全网权威语料——我们在 AI 获取知识的地方布局，而不是到处撒稿碰运气。</div>
+  </section>
+
+  <!-- 三 效果与承诺 -->
+  <section class="chapter" id="c3">
+    <div class="ch-head"><span class="ch-no">03</span><h2 class="action">效果规律与我们的承诺方式</h2></div>
+    <p class="lead">GEO 的效果分三层，<b>见效时间不同</b>，我们先讲清楚，避免误解：</p>
+    <table>
+      <thead><tr><th style="width:175px">效果层</th><th>您会看到什么</th><th style="width:26%">见效时间</th></tr></thead>
+      <tr><td><b>品牌词防守</b></td><td>问「您的品牌怎么样」时，AI 描述准确、口径正面</td><td>2–4 周</td></tr>
+      <tr><td><b>场景词渗透</b></td><td>问「您的痛点怎么解决」时，答案中开始提到您</td><td>4–8 周</td></tr>
+      <tr><td><b>品类词进攻</b></td><td>问「您行业哪家好」时，您进入推荐名单</td><td>6–12 周起步，持续爬升</td></tr>
+    </table>
+    <div class="rule"><b>我们的承诺方式：</b>承诺工作量与过程数据（每周发布篇数、监测频次、周报交付），以截图证据呈现趋势；<b>不承诺「保证第一」或「保证被推荐」</b>——目前没有任何人能技术上保证这一点，敢于这样承诺的服务商反而需要警惕。具体目标以您行业的基线数据为准，<b>做不到的数字，我们不签</b>。</div>
+    <div class="note"><b>您怎么验证我们有没有干活？</b>每周周报附每条提及的原始回答截图与来源链接；您随时自己打开 App 问一遍同样的问法，结果应当一致——<b>我们最不怕的就是您亲自查</b>。</div>
+  </section>
+
+  <!-- 四 您每周拿到什么 -->
+  <section class="chapter" id="c4">
+    <div class="ch-head"><span class="ch-no">04</span><h2 class="action">合作之后，您定期收到什么</h2></div>
+    <table class="kv">
+      <tr><td><b>第 1 周</b></td><td>《AI 可见性基线报告》——120 次实测数据，看清三大平台当前对您和竞品的表述</td></tr>
+      <tr><td><b>每周五</b></td><td>周报——本周动作、数据变化、下周计划，附对比截图</td></tr>
+      <tr><td><b>每月末</b></td><td>月度效果报告——提及率、推荐位次、竞品份额的趋势与归因分析：哪篇内容被哪个平台引用了</td></tr>
+      <tr><td><b>每季度</b></td><td>行业竞品可见性对标报告——您在行业 AI 生态位里的位置变化</td></tr>
+      <tr><td><b>需要您配合的</b></td><td>启动时提供品牌资料与案例素材（有清单，我们代整理）；重要事实表述 24 小时内确认；指定 1 名对接人</td></tr>
+    </table>
+  </section>
+
+  <!-- 五 凭什么是我们 -->
+  <section class="chapter" id="c5">
+    <div class="ch-head"><span class="ch-no">05</span><h2 class="action">凭什么是我们</h2></div>
+    <table class="kv">
+      <tr><td><b>自建试验田</b></td><td>我们用自有公司按完整 12 周流程真实执行这套方法论——账号矩阵、40 条监测词、每周内容与监测，全流程数据透明，洽谈时可现场展示执行台账。<b>敢公开自家试验数据的团队，比匿名的「某客户案例」可信</b></td></tr>
+      <tr><td><b>工程化监测</b></td><td>结构化输出提及率、推荐位次、引用率、竞品份额——不是「人工问一遍截图交差」</td></tr>
+      <tr><td><b>证据链交付</b></td><td>每条提及有原始回答截图与来源链接，可归因、可复现</td></tr>
+      <tr><td><b>承诺纪律</b></td><td>指标写进《服务确认函》——<b>敢承诺，也敢写「不承诺什么」</b></td></tr>
+    </table>
+    <div class="note"><b>顺话说清楚：什么样的企业暂时不适合这个服务</b>——期待「保证第一名」的（没有人能保证，谁保证谁有问题）；只想试一周的（方法论需要 4–12 周的见效周期）；不愿提供真实品牌素材的（素材是内容弹药，没有素材就没有打法）。我们宁可现在说清楚，不愿三个月后让您失望。</div>
+  </section>
+
+  <!-- 六 开始的三步 -->
+  <section class="chapter" id="c6">
+    <div class="ch-head"><span class="ch-no">06</span><h2 class="action">怎么开始：三步，每步都先看到事实</h2></div>
+    <ol class="next">
+      <li><b>AI 预诊断（48 小时）</b><span>用您行业的真实问法在三平台实测一遍您和竞品，出一页快照——每条带截图，您自己可以复核，看完再决定要不要往下走</span></li>
+      <li><b>基线诊断（7 天）</b><span>30–50 个问法完整实测，《AI 可见性基线报告》讲清楚差距、机会与合理目标——目标用您的数据定，不拍脑袋</span></li>
+      <li><b>定方案（书面确认）</b><span>按您的行业与预算出正式方案，《服务确认函》写明范围、目标、周期——白纸黑字，含我们「不承诺什么」</span></li>
+    </ol>
+    <div class="cta">
+      <div class="t-tag">联系我们</div>
+      <p><span class="ph">【合伙人/对接人姓名】</span> · <span class="ph">【电话/微信】</span><br>
+      <span class="ph">【团队/公司名称】</span> · <span class="ph">【日期】</span></p>
+      <div style="margin-top:10px;padding-top:8px;border-top:1px dashed #BFD9D2;font-size:12px;color:#7E93A2">* 本说明为业务介绍资料；具体服务范围、价格与效果目标以双方签署的《服务确认函》及协议为准。</div>
+    </div>
+  </section>
+
+</main>
+
+<aside>
+  <div class="toc">
+    <div class="toc-h">目录</div>
+    <a href="#c0"><span class="tn">00</span>服务速览</a>
+    <a href="#c1"><span class="tn">01</span>先自己试一试</a>
+    <a href="#c2"><span class="tn">02</span>服务内容</a>
+    <a href="#c3"><span class="tn">03</span>效果与承诺</a>
+    <a href="#c4"><span class="tn">04</span>您定期收到什么</a>
+    <a href="#c5"><span class="tn">05</span>凭什么是我们</a>
+    <a href="#c6"><span class="tn">06</span>怎么开始</a>
+  </div>
+  <div class="docinfo">
+    <h5>给决策人的话</h5>
+    这份说明里没有一个「包赢」的数字，<br>
+    但每一个数据<b>都欢迎您亲自验证</b>。<br>
+    第一步只花您 48 小时。
+  </div>
+</aside>
+</div>
+
+
+</body>
+</html>
