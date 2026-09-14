@@ -3,322 +3,566 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>GEO检测分析智能体</title>
+<title>【空针数据】GEO检测分析智能体</title>
 <!-- ============================================================
-  GEO检测分析智能体 · 落地页 v1（复刻自同类产品页版式）
-  需替换的占位：
-    1. 品牌名：搜「BRAND」三处（侧边栏 / 主标题 / 页面title）
-    2. slogan：主标题下方一句话
-    3. 示例报告行：tbody 内两行，演示用，上线前删除或换真实数据
+  空针数据 · GEO检测分析智能体 v2（带功能闭环）
+  品牌：空针数据（自建试验田口径，对外不包装成客户案例）
+  功能：进入系统→创建新分析→生成报告→报告库/详情（本地演示版，
+        数据存 localStorage；监测矩阵为「未监测」占位，待接 geo-engine-v0）
+  清空演示数据：控制台执行 localStorage.removeItem('kz_reports')
   ============================================================ -->
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   body {
     font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
-    background: #F7F8FA;
-    color: #1F2329;
-    display: flex;
-    min-height: 100vh;
+    background: #F7F8FA; color: #1F2329; display: flex; min-height: 100vh;
   }
   a { text-decoration: none; }
   ul { list-style: none; }
+  button { font-family: inherit; }
 
   /* ---------------- 左侧导航 ---------------- */
   .sidebar {
-    width: 256px;
-    background: #FFFFFF;
-    border-right: 1px solid #EBEEF5;
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-    transition: width .2s ease;
-    overflow: hidden;
+    width: 256px; background: #FFF; border-right: 1px solid #EBEEF5;
+    display: flex; flex-direction: column; flex-shrink: 0;
+    transition: width .2s ease; overflow: hidden auto;
   }
-  .side-top {
-    display: flex;
-    align-items: center;
-    height: 64px;
-    padding: 0 20px;
-    flex-shrink: 0;
-  }
+  .side-top { display: flex; align-items: center; height: 64px; padding: 0 20px; flex-shrink: 0; }
   .brand-logo {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
+    width: 28px; height: 28px; border-radius: 50%;
     background: linear-gradient(135deg, #36CFC9 0%, #3B7BFF 60%, #7C5CFF 100%);
-    color: #fff;
-    font-size: 14px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    color: #fff; font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
-  .brand-name {          /* 【品牌名】占位：BRAND(1/3) */
-    margin-left: 10px;
-    font-size: 16px;
-    font-weight: 600;
-    white-space: nowrap;
-  }
+  .brand-name { margin-left: 10px; font-size: 16px; font-weight: 600; white-space: nowrap; }
   .side-collapse {
-    margin-left: auto;
-    width: 24px; height: 24px;
+    margin-left: auto; width: 24px; height: 24px;
     display: flex; align-items: center; justify-content: center;
-    color: #6B7280;
-    cursor: pointer;
-    border: none; background: none;
-    flex-shrink: 0;
+    color: #6B7280; cursor: pointer; border: none; background: none; flex-shrink: 0;
   }
   .side-collapse:hover { color: #3B7BFF; }
-
   .nav { padding: 8px 12px; }
   .nav-item {
-    display: flex;
-    align-items: center;
-    height: 48px;
-    padding: 0 12px;
-    border-radius: 6px;
-    color: #1F2329;
-    font-size: 14px;
-    cursor: pointer;
-    white-space: nowrap;
+    display: flex; align-items: center; height: 48px; padding: 0 12px;
+    border-radius: 6px; color: #1F2329; font-size: 14px;
+    cursor: pointer; white-space: nowrap; user-select: none;
   }
   .nav-item svg { flex-shrink: 0; }
-  .nav-item span { margin-left: 10px; }
+  .nav-item span { margin-left: 10px; overflow: hidden; text-overflow: ellipsis; }
   .nav-item:hover { background: #F0F3F8; }
   .nav-item.active { background: #E8F0FF; color: #3B7BFF; font-weight: 500; }
-  .nav-item.history { color: #6B7280; }
+  .nav-group-label { padding: 8px 24px 2px; font-size: 12px; color: #98A1B0; }
+  .nav-sub-item {
+    display: flex; align-items: center; height: 36px; padding: 0 12px 0 38px;
+    border-radius: 6px; color: #6B7280; font-size: 13px; cursor: pointer;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .nav-sub-item:hover { background: #F0F3F8; color: #1F2329; }
   .side-sep { height: 1px; background: #EBEEF5; margin: 12px 12px; }
-
   .side-bottom {
-    margin-top: auto;
-    display: flex;
-    align-items: center;
-    height: 56px;
-    padding: 0 20px;
-    border-top: 1px solid #EBEEF5;
+    margin-top: auto; display: flex; align-items: center; height: 56px;
+    padding: 0 20px; border-top: 1px solid #EBEEF5;
   }
   .side-bottom .brand-name { font-size: 14px; font-weight: 500; }
 
-  /* 折叠态 */
   body.collapsed .sidebar { width: 64px; }
-  body.collapsed .brand-name,
-  body.collapsed .nav-item span { display: none; }
-  body.collapsed .side-top,
-  body.collapsed .side-bottom { justify-content: center; padding: 0; }
+  body.collapsed .brand-name, body.collapsed .nav-item span,
+  body.collapsed .nav-sub-item, body.collapsed .nav-group-label { display: none; }
+  body.collapsed .side-top, body.collapsed .side-bottom { justify-content: center; padding: 0; }
   body.collapsed .side-collapse { display: none; }
-  body.collapsed .brand-logo { margin: 0; }
   body.collapsed .nav-item { justify-content: center; padding: 0; }
 
-  /* ---------------- 主区 ---------------- */
-  .main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 64px 24px 96px;
-    min-width: 0;
-  }
-  .hero {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
+  /* ---------------- 主区公共 ---------------- */
+  .main { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 48px 24px 96px; min-width: 0; }
+  .page-head { width: 660px; max-width: 100%; margin-bottom: 20px; }
+  .page-title { font-size: 20px; font-weight: 600; }
+  .page-desc { margin-top: 6px; font-size: 13px; color: #6B7280; }
+
+  /* ---------------- 落地 hero ---------------- */
+  .hero { display: flex; flex-direction: column; align-items: center; text-align: center; }
   .hero-logo {
-    width: 120px;
-    height: 120px;
-    border-radius: 8px;
+    width: 120px; height: 120px; border-radius: 8px;
     background: linear-gradient(135deg, #667EEA 0%, #5A6CF0 50%, #764BA2 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     box-shadow: 0 8px 24px rgba(90, 108, 240, .25);
   }
-  .hero-title {        /* 【品牌名】占位：BRAND(2/3) */
-    margin-top: 24px;
-    font-size: 28px;
-    font-weight: 600;
-    color: #3B7BFF;
-    letter-spacing: .5px;
-  }
-  .hero-sub {
-    margin-top: 12px;
-    font-size: 15px;
-    color: #6B7280;   /* 【slogan】占位：换成自己的一句话 */
-  }
+  .hero-title { margin-top: 24px; font-size: 28px; font-weight: 600; color: #3B7BFF; letter-spacing: .5px; }
+  .hero-sub { margin-top: 12px; font-size: 15px; color: #6B7280; }
   .hero-btn {
-    margin-top: 32px;
-    width: 112px;
-    height: 40px;
-    border: none;
-    border-radius: 4px;
-    background: #3B7BFF;
-    color: #FFFFFF;
-    font-size: 14px;
-    cursor: pointer;
+    margin-top: 32px; width: 112px; height: 40px; border: none; border-radius: 4px;
+    background: #3B7BFF; color: #FFF; font-size: 14px; cursor: pointer;
     transition: background .15s ease, box-shadow .15s ease;
   }
   .hero-btn:hover { background: #2E6AE5; box-shadow: 0 4px 12px rgba(59, 123, 255, .35); }
 
-  /* ---------------- 共享报告表格 ---------------- */
-  .report-table-wrap {
-    width: 660px;
-    max-width: 100%;
-    margin-top: 48px;
-  }
+  /* ---------------- 表格 ---------------- */
+  .report-table-wrap { width: 660px; max-width: 100%; margin-top: 48px; }
   .report-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #FFFFFF;
-    border: 1px solid #EBEEF5;
-    border-radius: 6px;
-    overflow: hidden;
-    font-size: 14px;
+    width: 100%; border-collapse: collapse; background: #FFF;
+    border: 1px solid #EBEEF5; border-radius: 6px; overflow: hidden; font-size: 14px;
   }
   .report-table th {
-    background: #E8EEF7;
-    color: #6B7280;
-    font-weight: 400;
-    font-size: 13px;
-    text-align: left;
-    padding: 10px 16px;
+    background: #E8EEF7; color: #6B7280; font-weight: 400; font-size: 13px;
+    text-align: left; padding: 10px 16px;
   }
-  .report-table td {
-    padding: 14px 16px;
-    border-top: 1px solid #EBEEF5;
-  }
+  .report-table td { padding: 14px 16px; border-top: 1px solid #EBEEF5; }
   .report-table tbody tr { transition: background .12s ease; }
   .report-table tbody tr:hover { background: #F7FAFF; }
-  .t-time  { color: #6B7280; width: 180px; }
-  .t-name  { color: #3B7BFF; font-weight: 500; }
-  .t-view  { width: 64px; }
-  .t-view a { color: #3B7BFF; }
+  .t-time { color: #6B7280; width: 170px; white-space: nowrap; }
+  .t-name { color: #3B7BFF; font-weight: 500; }
+  .t-view { width: 64px; }
+  .t-view a { color: #3B7BFF; cursor: pointer; }
   .t-view a:hover { text-decoration: underline; }
+  .t-status { width: 84px; font-size: 12px; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; }
+  .tag.todo { background: #F0F1F3; color: #6B7280; }
+  .tag.doing { background: #E8F0FF; color: #3B7BFF; }
+  .empty-row td { text-align: center; color: #98A1B0; padding: 32px 16px; }
 
-  /* ---------------- 右下角悬浮客服 ---------------- */
+  /* ---------------- 表单 ---------------- */
+  .form-card {
+    width: 660px; max-width: 100%; background: #FFF; border: 1px solid #EBEEF5;
+    border-radius: 8px; padding: 28px 32px;
+  }
+  .form-item { margin-bottom: 20px; }
+  .form-item label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+  .label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .label-row label { margin-bottom: 0; }
+  .form-item label .req { color: #E5484D; margin-left: 2px; }
+  .form-item label .tip { font-weight: 400; font-size: 12px; color: #98A1B0; margin-left: 8px; }
+  .form-item input[type=text], .form-item textarea {
+    width: 100%; border: 1px solid #DCDFE6; border-radius: 4px; padding: 9px 12px;
+    font-size: 14px; font-family: inherit; color: #1F2329; background: #FFF;
+    transition: border-color .15s ease;
+  }
+  .form-item input:focus, .form-item textarea:focus { outline: none; border-color: #3B7BFF; }
+  .form-item textarea { resize: vertical; min-height: 96px; line-height: 1.6; }
+  .form-item .err { display: none; margin-top: 6px; font-size: 12px; color: #E5484D; }
+  .form-item.invalid input, .form-item.invalid textarea { border-color: #E5484D; }
+  .form-item.invalid .err { display: block; }
+  .platform-group { display: flex; flex-wrap: wrap; gap: 10px; }
+  .platform-chip {
+    display: flex; align-items: center; gap: 6px; padding: 7px 14px;
+    border: 1px solid #DCDFE6; border-radius: 4px; font-size: 14px;
+    cursor: pointer; user-select: none; transition: all .12s ease;
+  }
+  .platform-chip input { accent-color: #3B7BFF; }
+  .platform-chip:has(input:checked) { border-color: #3B7BFF; background: #F0F6FF; color: #2E6AE5; }
+  .form-actions { display: flex; gap: 12px; margin-top: 28px; }
+  .btn-primary, .btn-plain {
+    height: 38px; padding: 0 22px; border-radius: 4px; font-size: 14px; cursor: pointer;
+    transition: all .15s ease; border: 1px solid transparent;
+  }
+  .btn-primary { background: #3B7BFF; color: #FFF; }
+  .btn-primary:hover { background: #2E6AE5; box-shadow: 0 4px 12px rgba(59,123,255,.3); }
+  .btn-plain { background: #FFF; color: #1F2329; border-color: #DCDFE6; }
+  .btn-plain:hover { border-color: #3B7BFF; color: #3B7BFF; }
+  .gen-btn {
+    background: none; border: none; color: #3B7BFF; font-size: 12px;
+    cursor: pointer; padding: 0; margin-left: 8px;
+  }
+  .gen-btn:hover { text-decoration: underline; }
+
+  /* ---------------- 报告详情 ---------------- */
+  .report-meta { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 10px; font-size: 13px; color: #6B7280; }
+  .report-meta b { color: #1F2329; font-weight: 500; }
+  .section-card {
+    width: 660px; max-width: 100%; background: #FFF; border: 1px solid #EBEEF5;
+    border-radius: 8px; padding: 22px 24px; margin-bottom: 16px;
+  }
+  .section-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
+  .section-card .note { font-size: 12px; color: #98A1B0; line-height: 1.7; }
+  .score-box { display: flex; gap: 32px; align-items: center; }
+  .score-num { font-size: 40px; font-weight: 700; color: #C6CBD4; }
+  .score-label { font-size: 13px; color: #6B7280; margin-top: 4px; }
+  .matrix-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .matrix-table th {
+    background: #E8EEF7; color: #6B7280; font-weight: 400; text-align: left;
+    padding: 9px 12px; border: 1px solid #EBEEF5; white-space: nowrap;
+  }
+  .matrix-table td { padding: 9px 12px; border: 1px solid #EBEEF5; }
+  .matrix-table td.q { color: #1F2329; max-width: 260px; }
+  .cell-todo { color: #98A1B0; }
+  .q-type { display: inline-block; margin-left: 8px; font-size: 11px; color: #98A1B0; }
+
+  /* ---------------- 占位视图 / toast ---------------- */
+  .placeholder-view { text-align: center; padding: 80px 0; color: #6B7280; }
+  .placeholder-view .icon { margin-bottom: 16px; color: #C6CBD4; }
+  .placeholder-view p { font-size: 14px; }
+  .placeholder-view .sub { margin-top: 8px; font-size: 12px; color: #98A1B0; }
+  .toast {
+    position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-8px);
+    background: #1F2329; color: #FFF; font-size: 13px; padding: 10px 20px;
+    border-radius: 4px; opacity: 0; pointer-events: none;
+    transition: all .25s ease; z-index: 100;
+  }
+  .toast.show { opacity: .92; transform: translateX(-50%) translateY(0); }
+
+  /* ---------------- 悬浮客服 ---------------- */
   .fab {
-    position: fixed;
-    right: 48px;
-    bottom: 32px;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: #3B7BFF;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(59, 123, 255, .4);
-    cursor: pointer;
-    transition: transform .15s ease, background .15s ease;
+    position: fixed; right: 48px; bottom: 32px; width: 48px; height: 48px;
+    border-radius: 50%; background: #3B7BFF;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(59, 123, 255, .4); cursor: pointer;
+    transition: transform .15s ease, background .15s ease; z-index: 90;
   }
   .fab:hover { background: #2E6AE5; transform: translateY(-2px); }
 </style>
 </head>
 <body>
 
-  <!-- 左侧导航 -->
-  <aside class="sidebar">
-    <div class="side-top">
-      <div class="brand-logo">G</div>
-      <div class="brand-name">GeoCore</div>
-      <button class="side-collapse" title="收起导航" onclick="document.body.classList.toggle('collapsed')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
-      </button>
-    </div>
+<!-- 左侧导航 -->
+<aside class="sidebar">
+  <div class="side-top">
+    <div class="brand-logo">空</div>
+    <div class="brand-name">空针数据</div>
+    <button class="side-collapse" title="收起导航" onclick="document.body.classList.toggle('collapsed')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
+    </button>
+  </div>
 
-    <ul class="nav">
-      <li class="nav-item">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-        <span>创建新分析</span>
-      </li>
-      <li class="nav-item">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        <span>报告库</span>
-      </li>
-      <li class="nav-item">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
-        <span>服务中心</span>
-      </li>
-    </ul>
+  <ul class="nav">
+    <li class="nav-item" data-view="create">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      <span>创建新分析</span>
+    </li>
+    <li class="nav-item" data-view="library">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span>报告库</span>
+    </li>
+    <li class="nav-item" data-view="service">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
+      <span>服务中心</span>
+    </li>
+  </ul>
 
-    <ul class="nav">
-      <li class="nav-item">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
-        <span>GEO优化系统</span>
-      </li>
-    </ul>
+  <ul class="nav">
+    <li class="nav-item" data-view="geo-system">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+      <span>GEO优化系统</span>
+    </li>
+  </ul>
 
-    <ul class="nav">
-      <li class="nav-item">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span>会员中心</span>
-      </li>
-    </ul>
+  <ul class="nav">
+    <li class="nav-item" data-view="member">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>会员中心</span>
+    </li>
+  </ul>
 
-    <div class="side-sep"></div>
+  <div class="side-sep"></div>
 
-    <ul class="nav">
-      <li class="nav-item history">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span>历史记录</span>
-      </li>
-    </ul>
+  <div class="nav-group-label">历史记录</div>
+  <ul class="nav" id="history-list"></ul>
 
-    <div class="side-bottom">
-      <div class="brand-logo">G</div>
-      <div class="brand-name">GeoCore</div>  <!-- 【品牌名】占位：BRAND(3/3) -->
-    </div>
-  </aside>
+  <div class="side-bottom">
+    <div class="brand-logo">空</div>
+    <div class="brand-name">空针数据</div>
+  </div>
+</aside>
 
-  <!-- 主区 -->
-  <main class="main">
+<!-- 主区 -->
+<main class="main" id="main"></main>
+
+<!-- 悬浮客服 -->
+<div class="fab" title="联系客服" onclick="switchView('service')">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ==================== 数据层 ==================== */
+const STORE_KEY = 'kz_reports';
+const PLATFORMS = ['豆包', '腾讯元宝', 'DeepSeek', 'Kimi', '文心一言'];
+const Q_TYPES = [
+  { key: 'brand',    name: '品牌词', tpl: b => `${b}怎么样` },
+  { key: 'industry', name: '行业推荐', tpl: b => `${b}所属行业里有哪些值得推荐的品牌` },
+  { key: 'compare',  name: '竞品对比', tpl: b => `${b}和竞品相比哪个好` },
+  { key: 'pain',     name: '痛点求解', tpl: b => `想解决行业常见问题，${b}能行吗` },
+  { key: 'region',   name: '地域限制', tpl: b => `在本地找${b}类的服务，有推荐的吗` },
+];
+
+function fmtTime(d) {
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+function loadReports() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; } catch (e) { return []; }
+}
+function saveReports(list) { localStorage.setItem(STORE_KEY, JSON.stringify(list)); }
+
+/* 首次访问预置一条自测记录（空针=自建试验田，对外不包装成案例） */
+(function seed() {
+  if (!localStorage.getItem(STORE_KEY)) {
+    saveReports([{
+      id: 'seed-1', brand: '空针数据', category: 'GEO监测工具（自测）',
+      competitors: '', platforms: ['豆包', 'DeepSeek'],
+      questions: Q_TYPES.map(t => ({ type: t.key, text: t.tpl('空针数据') })),
+      createdAt: '2026-09-14 10:07:12', status: 'todo',
+    }]);
+  }
+})();
+
+let reports = loadReports();
+function getReport(id) { return reports.find(r => r.id === id); }
+
+/* ==================== 视图层 ==================== */
+const main = document.getElementById('main');
+let currentView = 'home', currentReportId = null;
+
+const svg = {
+  doc: '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg>',
+  clock: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+};
+
+function statusTag(s) {
+  return s === 'doing'
+    ? '<span class="tag doing">监测中</span>'
+    : '<span class="tag todo">待监测</span>';
+}
+
+function reportRows(list) {
+  if (!list.length) {
+    return '<tr class="empty-row"><td colspan="4">暂无报告，点击「创建新分析」开始</td></tr>';
+  }
+  return list.map(r => `
+    <tr>
+      <td class="t-time">${r.createdAt}</td>
+      <td class="t-name">《${r.brand} AI可见度分析报告》</td>
+      <td>${r.category}</td>
+      <td class="t-status">${statusTag(r.status)}</td>
+      <td class="t-view"><a onclick="openReport('${r.id}')">查看</a></td>
+    </tr>`).join('');
+}
+
+function renderHome() {
+  main.innerHTML = `
     <div class="hero">
-      <div class="hero-logo" title="品牌LOGO占位：替换为自己的logo图片或SVG">
+      <div class="hero-logo" title="品牌LOGO占位">
         <svg width="52" height="52" viewBox="0 0 48 48" fill="none">
           <path d="M24 6 38 38H10Z" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round"/>
           <circle cx="24" cy="28" r="4" fill="#FFFFFF"/>
         </svg>
       </div>
-      <h1 class="hero-title">GeoCore GEO检测分析智能体</h1>
+      <h1 class="hero-title">空针数据 GEO检测分析智能体</h1>
       <p class="hero-sub">让品牌在每一个AI回答里被看见、被推荐</p>
-      <button class="hero-btn" onclick="alert('接入创建新分析流程')">进入系统</button>
+      <button class="hero-btn" onclick="switchView('create')">进入系统</button>
     </div>
-
     <div class="report-table-wrap">
       <table class="report-table">
-        <thead>
-          <tr>
-            <th class="t-time">共享报告</th>
-            <th>报告名称</th>
-            <th>产品说明</th>
-            <th class="t-view">操作</th>
-          </tr>
-        </thead>
+        <thead><tr>
+          <th class="t-time">共享报告</th><th>报告名称</th><th>产品说明</th>
+          <th class="t-status">状态</th><th class="t-view">操作</th>
+        </tr></thead>
+        <tbody>${reportRows(reports)}</tbody>
+      </table>
+    </div>`;
+}
+
+function renderLibrary() {
+  main.innerHTML = `
+    <div class="page-head">
+      <div class="page-title">报告库</div>
+      <div class="page-desc">共 ${reports.length} 份报告，数据为本地演示存储</div>
+    </div>
+    <div class="report-table-wrap" style="margin-top:0">
+      <table class="report-table">
+        <thead><tr>
+          <th class="t-time">创建时间</th><th>报告名称</th><th>产品说明</th>
+          <th class="t-status">状态</th><th class="t-view">操作</th>
+        </tr></thead>
+        <tbody>${reportRows(reports)}</tbody>
+      </table>
+    </div>`;
+}
+
+function renderCreate() {
+  main.innerHTML = `
+    <div class="page-head">
+      <div class="page-title">创建新分析</div>
+      <div class="page-desc">填写品牌与监测问法，生成 AI 可见度分析报告框架</div>
+    </div>
+    <div class="form-card">
+      <div class="form-item" id="fi-brand">
+        <label>品牌名称<span class="req">*</span></label>
+        <input type="text" id="f-brand" placeholder="例如：空针数据" maxlength="30">
+        <div class="err">请填写品牌名称</div>
+      </div>
+      <div class="form-item" id="fi-category">
+        <label>行业 / 产品说明<span class="req">*</span><span class="tip">用于报告分类与行业问法生成</span></label>
+        <input type="text" id="f-category" placeholder="例如：GEO监测工具" maxlength="50">
+        <div class="err">请填写行业或产品说明</div>
+      </div>
+      <div class="form-item">
+        <label>竞品品牌<span class="tip">选填，多个用顿号分隔</span></label>
+        <input type="text" id="f-competitors" placeholder="例如：竞品A、竞品B" maxlength="100">
+      </div>
+      <div class="form-item" id="fi-platforms">
+        <label>监测平台<span class="req">*</span></label>
+        <div class="platform-group" id="f-platforms">
+          ${PLATFORMS.map(p => `<label class="platform-chip"><input type="checkbox" value="${p}">${p}</label>`).join('')}
+        </div>
+        <div class="err">请至少选择一个监测平台</div>
+      </div>
+      <div class="form-item" id="fi-questions">
+        <div class="label-row">
+          <label>分析问法<span class="req">*</span><span class="tip">每行一个问法</span></label>
+          <button type="button" class="gen-btn" onclick="genQuestions()">按五类问法矩阵生成</button>
+        </div>
+        <textarea id="f-questions" placeholder="每行一个问法，可点击上方按钮按 品牌词/行业推荐/竞品对比/痛点求解/地域限制 五类自动生成"></textarea>
+        <div class="err">请至少填写一个问法</div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="submitCreate()">生成报告</button>
+        <button class="btn-plain" onclick="switchView('home')">取消</button>
+      </div>
+    </div>`;
+}
+
+function genQuestions() {
+  const brand = document.getElementById('f-brand').value.trim() || '【品牌名】';
+  document.getElementById('f-questions').value =
+    Q_TYPES.map(t => t.tpl(brand)).join('\n');
+}
+
+function submitCreate() {
+  const brand = document.getElementById('f-brand').value.trim();
+  const category = document.getElementById('f-category').value.trim();
+  const platforms = [...document.querySelectorAll('#f-platforms input:checked')].map(i => i.value);
+  const questions = document.getElementById('f-questions').value
+    .split('\n').map(s => s.trim()).filter(Boolean);
+
+  let ok = true;
+  const mark = (id, bad) => { document.getElementById(id).classList.toggle('invalid', bad); if (bad) ok = false; };
+  mark('fi-brand', !brand);
+  mark('fi-category', !category);
+  mark('fi-platforms', !platforms.length);
+  mark('fi-questions', !questions.length);
+  if (!ok) return;
+
+  const report = {
+    id: 'r' + Date.now(),
+    brand, category,
+    competitors: document.getElementById('f-competitors').value.trim(),
+    platforms,
+    questions: questions.map((text, i) => ({
+      type: Q_TYPES[i % Q_TYPES.length].key, text,
+    })),
+    createdAt: fmtTime(new Date()),
+    status: 'todo',
+  };
+  reports.unshift(report);
+  saveReports(reports);
+  renderHistory();
+  toast('报告已创建，待接入引擎开始监测');
+  openReport(report.id);
+}
+
+function renderReport(r) {
+  const qTypeName = k => (Q_TYPES.find(t => t.key === k) || {}).name || '';
+  main.innerHTML = `
+    <div class="page-head">
+      <div class="page-title">《${r.brand} AI可见度分析报告》</div>
+      <div class="report-meta">
+        <span>创建时间 <b>${r.createdAt}</b></span>
+        <span>监测平台 <b>${r.platforms.join('、')}</b></span>
+        <span>问法数 <b>${r.questions.length}</b></span>
+        <span>状态 ${statusTag(r.status)}</span>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h3>可见度总览</h3>
+      <div class="score-box">
+        <div><div class="score-num">--</div><div class="score-label">综合可见度得分</div></div>
+        <div class="note">得分待 geo-engine-v0 监测引擎接入后生成。<br>引擎将按下方问法逐一向各 AI 平台提问，统计品牌被提及 / 被推荐 / 被引用来源的比例。</div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h3>平台 × 问法 提及矩阵</h3>
+      <table class="matrix-table">
+        <thead><tr><th>分析问法</th>${r.platforms.map(p => `<th>${p}</th>`).join('')}</tr></thead>
         <tbody>
-          <!-- 示例数据：演示用，上线前替换或删除（勿虚构为客户案例） -->
-          <tr>
-            <td class="t-time">2026-09-14 10:07:12</td>
-            <td class="t-name">《品牌A AI可见度分析报告》</td>
-            <td>示例行业-产品类目</td>
-            <td class="t-view"><a href="#">查看</a></td>
-          </tr>
-          <tr>
-            <td class="t-time">2026-09-14 10:02:57</td>
-            <td class="t-name">《品牌B AI可见度分析报告》</td>
-            <td>示例行业-产品类目</td>
-            <td class="t-view"><a href="#">查看</a></td>
-          </tr>
+          ${r.questions.map(q => `
+            <tr>
+              <td class="q">${q.text}<span class="q-type">${qTypeName(q.type)}</span></td>
+              ${r.platforms.map(() => '<td class="cell-todo">未监测</td>').join('')}
+            </tr>`).join('')}
         </tbody>
       </table>
+      <p class="note" style="margin-top:12px">矩阵单元格将在引擎接入后展示：提及 / 推荐 / 未提及 / 引用来源。</p>
     </div>
-  </main>
 
-  <!-- 悬浮客服 -->
-  <div class="fab" title="联系客服">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
-  </div>
+    <div class="section-card">
+      <h3>下一步</h3>
+      <div class="form-actions" style="margin-top:4px">
+        <button class="btn-primary" onclick="toast('监测引擎 geo-engine-v0 接入后可用（目标 2026-10-05）')">开始监测</button>
+        <button class="btn-plain" onclick="switchView('library')">返回报告库</button>
+      </div>
+    </div>`;
+}
 
+function openReport(id) {
+  const r = getReport(id);
+  if (!r) { switchView('library'); return; }
+  currentView = 'report'; currentReportId = id;
+  renderReport(r);
+  setActiveNav();
+}
+
+const PLACEHOLDERS = {
+  'service':       { title: '服务中心', sub: '常见问题与支持入口（规划中）' },
+  'geo-system':    { title: 'GEO优化系统', sub: '内容优化与投放执行模块（规划中）' },
+  'member':        { title: '会员中心', sub: '套餐与配额管理（规划中）' },
+};
+function renderPlaceholder(key) {
+  const p = PLACEHOLDERS[key];
+  main.innerHTML = `
+    <div class="placeholder-view">
+      <div class="icon">${svg.doc}</div>
+      <p>${p.title}</p>
+      <p class="sub">${p.sub}</p>
+    </div>`;
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  const recent = reports.slice(0, 5);
+  list.innerHTML = recent.length
+    ? recent.map(r => `<li class="nav-sub-item" title="《${r.brand} AI可见度分析报告》" onclick="openReport('${r.id}')">${svg.clock}<span style="margin-left:8px">${r.brand}</span></li>`).join('')
+    : '<li class="nav-sub-item" style="cursor:default;color:#C6CBD4">暂无记录</li>';
+}
+
+/* ==================== 导航 ==================== */
+function setActiveNav() {
+  document.querySelectorAll('.nav-item').forEach(el =>
+    el.classList.toggle('active', el.dataset.view === currentView));
+}
+function switchView(view) {
+  currentView = view; currentReportId = null;
+  if (view === 'home') renderHome();
+  else if (view === 'create') renderCreate();
+  else if (view === 'library') renderLibrary();
+  else renderPlaceholder(view);
+  setActiveNav();
+}
+document.querySelectorAll('.nav-item[data-view]').forEach(el =>
+  el.addEventListener('click', () => switchView(el.dataset.view)));
+
+let toastTimer = null;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* ==================== 启动 ==================== */
+renderHistory();
+switchView('home');
+</script>
 </body>
 </html>
