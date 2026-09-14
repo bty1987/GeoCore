@@ -52,7 +52,9 @@
   .nav-item span { margin-left: 10px; overflow: hidden; text-overflow: ellipsis; }
   .nav-item:hover { background: #F0F3F8; }
   .nav-item.active { background: #E8F0FF; color: #3B7BFF; font-weight: 500; }
-  .nav-group-label { padding: 8px 24px 2px; font-size: 12px; color: #98A1B0; }
+  .nav-group-label, .nav-group-item {
+    padding: 8px 24px 2px; font-size: 12px; color: #98A1B0; list-style: none; white-space: nowrap;
+  }
   .nav-sub-item {
     display: flex; align-items: center; height: 36px; padding: 0 12px 0 38px;
     border-radius: 6px; color: #6B7280; font-size: 13px; cursor: pointer;
@@ -266,6 +268,38 @@
   .cell-miss { color: #98A1B0; }
   .cell-rec { color: #3B7BFF; font-weight: 600; }
 
+  /* ---------------- 报告（文档式） ---------------- */
+  .doc { width: 860px; max-width: 100%; background: #FFF; border: 1px solid #EBEEF5; border-radius: 8px; padding: 40px 48px; }
+  .doc-head { text-align: center; border-bottom: 2px solid #1E3A6E; padding-bottom: 18px; margin-bottom: 8px; }
+  .doc-kicker { font-size: 12px; letter-spacing: 4px; color: #3B7BFF; font-weight: 600; }
+  .doc-title { font-size: 24px; font-weight: 700; margin: 10px 0 8px; color: #1F2329; }
+  .doc-tags { display: flex; gap: 8px; justify-content: center; }
+  .doc-tag { font-size: 11px; padding: 3px 10px; border-radius: 999px; background: #F0F6FF; color: #2E6AE5; border: 1px solid #D5E3FF; }
+  .doc h2 { font-size: 17px; font-weight: 700; color: #1E3A6E; margin: 26px 0 12px; padding-left: 10px; border-left: 4px solid #3B7BFF; }
+  .doc h3 { font-size: 14px; font-weight: 600; margin: 16px 0 8px; }
+  .doc p { font-size: 13px; line-height: 1.8; color: #4E5561; margin-bottom: 8px; }
+  .doc .decl { background: #F7F9FC; border-radius: 6px; padding: 12px 16px; font-size: 12px; color: #6B7280; line-height: 1.8; }
+  .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 12px 0; }
+  .metric-card { background: #F7F9FC; border-radius: 6px; padding: 14px; text-align: center; }
+  .metric-card b { display: block; font-size: 22px; font-weight: 700; color: #1E3A6E; }
+  .metric-card span { font-size: 12px; color: #6B7280; }
+  .dim-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .dim-chip { font-size: 12px; padding: 4px 12px; border-radius: 4px; background: #FFF; border: 1px solid #D5E3FF; color: #2E6AE5; }
+  .kv-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
+  .kv-table td { border: 1px solid #EBEEF5; padding: 8px 14px; }
+  .kv-table td.k { background: #F7F9FC; color: #6B7280; width: 120px; }
+  .doc-actions { display: flex; gap: 10px; justify-content: flex-end; margin-bottom: 10px; width: 860px; max-width: 100%; }
+
+  /* ---------------- 报告库卡片 / 历史分组 ---------------- */
+  .lib-search { display: flex; gap: 10px; margin-bottom: 16px; width: 860px; max-width: 100%; }
+  .lib-search input { flex: 1; height: 36px; border: 1px solid #DCDFE6; border-radius: 4px; padding: 0 12px; font-size: 14px; }
+  .lib-search input:focus { outline: none; border-color: #3B7BFF; }
+  .lib-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; width: 860px; max-width: 100%; }
+  .lib-card { background: #FFF; border: 1px solid #EBEEF5; border-radius: 8px; padding: 16px 18px; cursor: pointer; transition: all .12s ease; }
+  .lib-card:hover { border-color: #3B7BFF; box-shadow: 0 4px 12px rgba(59, 123, 255, .12); }
+  .lib-card .t { font-size: 14px; font-weight: 600; color: #3B7BFF; }
+  .lib-card .m { margin-top: 8px; font-size: 12px; color: #6B7280; line-height: 1.8; }
+
   /* ---------------- 占位视图 / toast ---------------- */
   .placeholder-view { text-align: center; padding: 80px 0; color: #6B7280; }
   .placeholder-view .icon { margin-bottom: 16px; color: #C6CBD4; font-size: 40px; }
@@ -457,15 +491,26 @@ function renderHome() {
     </div>`;
 }
 
+let libKeyword = '';
 function renderLibrary() {
+  const list = libKeyword
+    ? reports.filter(r => (r.brand + r.category).includes(libKeyword))
+    : reports;
   main.innerHTML = `
     <div class="page-head"><div class="page-title">报告库</div>
       <div class="page-desc">共 ${reports.length} 份报告 · 本地演示存储</div></div>
-    <div class="report-table-wrap" style="margin-top:0">
-      <table class="report-table">
-        <thead><tr><th class="t-time">创建时间</th><th>报告名称</th><th>产品说明</th><th class="t-status">状态</th><th class="t-view">操作</th></tr></thead>
-        <tbody>${reportRows(reports)}</tbody>
-      </table>
+    <div class="lib-search">
+      <input type="text" placeholder="输入品牌名称或产品说明搜索…" value="${libKeyword}"
+        oninput="libKeyword=this.value.trim();renderLibrary()">
+    </div>
+    <div class="lib-cards">
+      ${list.length ? list.map(r => `
+        <div class="lib-card" onclick="openReport('${r.id}')">
+          <div class="t">《${r.brand} AI可见度分析报告》</div>
+          <div class="m">品牌名称：${r.brand}<br>产品说明：${r.category}<br>
+            展示时间：${r.createdAt}　${statusTag(r.status)}</div>
+        </div>`).join('')
+      : '<div class="lib-card" style="cursor:default"><div class="m">没有匹配的报告</div></div>'}
     </div>`;
 }
 
@@ -752,53 +797,77 @@ function renderReport(r) {
   const hitCount = qs.reduce((s, q) => s + r.models.filter(m => hash(q.text + '|' + m) % 10 < 7).length, 0);
   const total = qs.length * r.models.length;
   const score = total ? Math.round(hitCount / total * 100) : 0;
+  const missCount = total - hitCount;
 
-  const phaseTable = key => `
-    <div class="section-card">
-      <h3>${PHASES[key].name} · 回答矩阵</h3>
-      <table class="q-table">
-        <thead><tr><th>提问词</th>${modelNames.map(n => `<th>${n}</th>`).join('')}</tr></thead>
-        <tbody>
-          ${r.questions[key].map(q => `
-            <tr><td class="q">${q.text}</td>
-            ${r.models.map(m => `<td>${cellState(q.text, m)}</td>`).join('')}</tr>`).join('')}
+  const phaseMatrix = key => `
+    <h3>${PHASES[key].name} · 回答矩阵</h3>
+    <table class="q-table">
+      <thead><tr><th>提问词</th>${modelNames.map(n => `<th>${n}</th>`).join('')}</tr></thead>
+      <tbody>
+        ${r.questions[key].map(q => `
+          <tr><td class="q">${q.text}</td>
+          ${r.models.map(m => `<td>${cellState(q.text, m)}</td>`).join('')}</tr>`).join('')}
         </tbody>
-      </table>
-    </div>`;
+    </table>`;
+
+  const phaseAdvice = {
+    pos: '优先处理未提及的正面问法：围绕品牌实力、客户口碑、服务保障补充结构化内容（官网案例页、服务清单、真实评价），让模型在比较类提问中有据可引。',
+    neg: '负面问法是避雷场景：提前用真实、可验证的内容（资质、售后承诺、常见问题答疑）占据回答依据，避免空白被第三方猜测填充。',
+    dec: '决策期问法离转化最近：补齐价格区间说明、试用政策、实施流程与本地案例，减少用户临门一脚时的不确定感。',
+  };
 
   main.innerHTML = `
-    <div class="page-head">
-      <div class="page-title">《${r.brand} AI可见度分析报告》<span class="demo-badge">演示数据 · 非真实监测</span></div>
-      <div class="report-meta">
-        <span>生成时间 <b>${r.createdAt}</b></span>
-        <span>监测模型 <b>${modelNames.join('、') || '—'}</b></span>
-        <span>提问 <b>${qs.length}</b> 条</span>
-        <span>消耗算力 <b>${r.cost}</b> 点</span>
-      </div>
+    <div class="doc-actions">
+      <button class="btn-plain" onclick="toast('切换模板：接入报告模板产线后可用')">切换模板</button>
+      <button class="btn-plain" onclick="toast('下载：接入引擎后可导出 PDF')">下载</button>
+      <button class="btn-plain" onclick="toast('编辑：演示版只读')">编辑</button>
     </div>
-
-    <div class="section-card">
-      <h3>可见度总览</h3>
-      <div class="score-box">
-        <div><div class="score-num" style="color:${score >= 60 ? '#1FA463' : score >= 30 ? '#F5941E' : '#E5484D'}">${score}</div>
-          <div class="score-label">综合可见度指数（演示）</div></div>
-        <div class="stat-row">
-          <div class="s"><b>${hitCount}</b><span>提及+推荐+引用 / ${total} 次回答</span></div>
-          <div class="s"><b>${r.questions.dec.length}</b><span>品牌决策期问法</span></div>
-          <div class="s"><b>${r.region}</b><span>地域范围</span></div>
+    <div class="doc">
+      <div class="doc-head">
+        <div class="doc-kicker">GEO 优化</div>
+        <div class="doc-title">《${r.brand} AI可见度分析报告》</div>
+        <div class="doc-tags">
+          <span class="doc-tag">AI 搜索</span><span class="doc-tag">GEO</span><span class="doc-tag">品牌可见性</span>
+          <span class="doc-tag" style="background:#FFF4E5;border-color:#F5D9A8;color:#C97A10">演示数据 · 非真实监测</span>
         </div>
       </div>
-      <p class="note" style="margin-top:12px">演示版：数值由确定性伪随机生成，用于验证报告结构。接入 geo-engine-v0 后展示真实监测结果。</p>
-    </div>
 
-    ${Object.keys(PHASES).map(phaseTable).join('')}
+      <div class="decl">声明：本报告基于对 AI 大模型的有限次抽样提问生成（演示版由确定性模拟数据填充），反映特定时点的抽样表现，不构成对品牌长期可见度的绝对结论。接入监测引擎后，全部数值来自真实问答记录。</div>
 
-    <div class="section-card">
-      <h3>下一步</h3>
-      <div class="form-actions" style="margin-top:4px">
-        <button class="btn-plain" onclick="switchView('library')">返回报告库</button>
-        <button class="btn-plain" onclick="toast('导出：接入引擎后提供 PDF 报告导出')">导出报告</button>
+      <h2>检测报告概述</h2>
+      <div class="metric-grid">
+        <div class="metric-card"><b>${qs.length}</b><span>检测问题（个）</span></div>
+        <div class="metric-card"><b>${r.models.length}</b><span>检测模型（个）</span></div>
+        <div class="metric-card"><b>${total}</b><span>对话数量（次）</span></div>
+        <div class="metric-card"><b>${total * 2}</b><span>统计分析（次）</span></div>
+        <div class="metric-card"><b>${r.cost}</b><span>消耗算力（点）</span></div>
+        <div class="metric-card"><b>${score}</b><span>综合可见度指数</span></div>
       </div>
+
+      <h3>十大分析维度</h3>
+      <div class="dim-chips">
+        ${['品牌可见度', '品牌提及率', '回答排序', '竞品对比', '竞品排序', '情感倾向', '引用来源', '关联引用源', '模型共用引用源', '优化方向建议'].map(d => `<span class="dim-chip">${d}</span>`).join('')}
+      </div>
+
+      <h2>企业基本信息</h2>
+      <table class="kv-table">
+        <tr><td class="k">品牌名称</td><td>${r.brand}</td><td class="k">产品核心词</td><td>${r.category}</td></tr>
+        <tr><td class="k">客户地域</td><td>${r.region}</td><td class="k">分析时间</td><td>${r.createdAt}</td></tr>
+        <tr><td class="k">监测模型</td><td colspan="3">${modelNames.join('、') || '—'}</td></tr>
+        <tr><td class="k">品牌描述</td><td colspan="3">${r.desc || '（未填写）'}</td></tr>
+      </table>
+
+      <h2>可见度总览</h2>
+      <p>本次共 ${total} 次回答中，品牌被提及、推荐或作为引用来源出现 <b>${hitCount}</b> 次（${score}%），未出现 <b>${missCount}</b> 次。以下按三阶段呈现逐条结果：</p>
+      ${Object.keys(PHASES).map(phaseMatrix).join('')}
+
+      <h2>分阶段总结与执行建议</h2>
+      ${Object.keys(PHASES).map(k => `<h3>${PHASES[k].name}</h3><p>${phaseAdvice[k]}</p>`).join('')}
+
+      <h2>下一步</h2>
+      <p>1. 演示数据仅用于验证报告结构，真实数据由 geo-engine-v0 监测引擎生成（40 词 × 多平台自动采集）。<br>
+         2. 报告导出走 06-设计工程 的咨询报告体 PDF 产线。<br>
+         3. 优化执行进入 GEO 优化系统（规划中）。</p>
     </div>`;
 }
 
@@ -835,12 +904,29 @@ function renderPlaceholder(key) {
 }
 
 /* ==================== 导航 ==================== */
+function histGroup(createdAt) {
+  const d = new Date(createdAt.replace(/-/g, '/'));
+  const now = new Date();
+  const days = (now - d) / 86400000;
+  if (days < 1 && d.getDate() === now.getDate()) return '今天';
+  if (days < 2) return '昨天';
+  if (days < 7) return '7天内';
+  return '更早';
+}
 function renderHistory() {
   const list = document.getElementById('history-list');
-  const recent = reports.slice(0, 5);
-  list.innerHTML = recent.length
-    ? recent.map(r => `<li class="nav-sub-item" title="《${r.brand} AI可见度分析报告》" onclick="openReport('${r.id}')">🕒<span style="margin-left:8px">${r.brand}</span></li>`).join('')
-    : '<li class="nav-sub-item" style="cursor:default;color:#C6CBD4">暂无记录</li>';
+  const recent = reports.slice(0, 8);
+  if (!recent.length) {
+    list.innerHTML = '<li class="nav-sub-item" style="cursor:default;color:#C6CBD4">暂无记录</li>';
+    return;
+  }
+  let html = '', lastGroup = '';
+  for (const r of recent) {
+    const g = histGroup(r.createdAt);
+    if (g !== lastGroup) { html += `<li class="nav-group-item" style="list-style:none">${g}</li>`; lastGroup = g; }
+    html += `<li class="nav-sub-item" title="《${r.brand} AI可见度分析报告》" onclick="openReport('${r.id}')">🕒<span style="margin-left:8px">${r.brand}</span></li>`;
+  }
+  list.innerHTML = html;
 }
 function setActiveNav() {
   document.querySelectorAll('.nav-item').forEach(el =>
