@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>【空针数据】GEO检测分析智能体</title>
 <!-- ============================================================
-  空针数据 · GEO检测分析智能体 v2（带功能闭环）
+  空针数据 · GEO检测分析智能体 v3（对照同类产品流程的自研实现）
   品牌：空针数据（自建试验田口径，对外不包装成客户案例）
-  功能：进入系统→创建新分析→生成报告→报告库/详情（本地演示版，
-        数据存 localStorage；监测矩阵为「未监测」占位，待接 geo-engine-v0）
-  清空演示数据：控制台执行 localStorage.removeItem('kz_reports')
+  流程：创建分析 → 意图提取（三阶段问法矩阵）→ 模型选择/算力结算
+        → 开始分析 → 报告（演示数据，待接 geo-engine-v0）
+  本页所有文案为自有写法；数据存 localStorage（演示）。
+  清空演示数据：localStorage.clear()
   ============================================================ -->
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -64,7 +65,6 @@
     padding: 0 20px; border-top: 1px solid #EBEEF5;
   }
   .side-bottom .brand-name { font-size: 14px; font-weight: 500; }
-
   body.collapsed .sidebar { width: 64px; }
   body.collapsed .brand-name, body.collapsed .nav-item span,
   body.collapsed .nav-sub-item, body.collapsed .nav-group-label { display: none; }
@@ -73,12 +73,12 @@
   body.collapsed .nav-item { justify-content: center; padding: 0; }
 
   /* ---------------- 主区公共 ---------------- */
-  .main { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 48px 24px 96px; min-width: 0; }
-  .page-head { width: 660px; max-width: 100%; margin-bottom: 20px; }
+  .main { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 40px 24px 96px; min-width: 0; overflow-x: hidden; }
+  .page-head { width: 860px; max-width: 100%; margin-bottom: 18px; }
   .page-title { font-size: 20px; font-weight: 600; }
   .page-desc { margin-top: 6px; font-size: 13px; color: #6B7280; }
 
-  /* ---------------- 落地 hero ---------------- */
+  /* ---------------- 落地 hero / 表格 ---------------- */
   .hero { display: flex; flex-direction: column; align-items: center; text-align: center; }
   .hero-logo {
     width: 120px; height: 120px; border-radius: 8px;
@@ -95,7 +95,6 @@
   }
   .hero-btn:hover { background: #2E6AE5; box-shadow: 0 4px 12px rgba(59, 123, 255, .35); }
 
-  /* ---------------- 表格 ---------------- */
   .report-table-wrap { width: 660px; max-width: 100%; margin-top: 48px; }
   .report-table {
     width: 100%; border-collapse: collapse; background: #FFF;
@@ -117,6 +116,7 @@
   .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; }
   .tag.todo { background: #F0F1F3; color: #6B7280; }
   .tag.doing { background: #E8F0FF; color: #3B7BFF; }
+  .tag.done { background: #E6F7EF; color: #1FA463; }
   .empty-row td { text-align: center; color: #98A1B0; padding: 32px 16px; }
 
   /* ---------------- 表单 ---------------- */
@@ -126,28 +126,19 @@
   }
   .form-item { margin-bottom: 20px; }
   .form-item label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
-  .label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-  .label-row label { margin-bottom: 0; }
   .form-item label .req { color: #E5484D; margin-left: 2px; }
   .form-item label .tip { font-weight: 400; font-size: 12px; color: #98A1B0; margin-left: 8px; }
-  .form-item input[type=text], .form-item textarea {
+  .form-item input[type=text], .form-item textarea, .form-item select {
     width: 100%; border: 1px solid #DCDFE6; border-radius: 4px; padding: 9px 12px;
     font-size: 14px; font-family: inherit; color: #1F2329; background: #FFF;
     transition: border-color .15s ease;
   }
-  .form-item input:focus, .form-item textarea:focus { outline: none; border-color: #3B7BFF; }
+  .form-item input:focus, .form-item textarea:focus, .form-item select:focus { outline: none; border-color: #3B7BFF; }
   .form-item textarea { resize: vertical; min-height: 96px; line-height: 1.6; }
   .form-item .err { display: none; margin-top: 6px; font-size: 12px; color: #E5484D; }
   .form-item.invalid input, .form-item.invalid textarea { border-color: #E5484D; }
   .form-item.invalid .err { display: block; }
-  .platform-group { display: flex; flex-wrap: wrap; gap: 10px; }
-  .platform-chip {
-    display: flex; align-items: center; gap: 6px; padding: 7px 14px;
-    border: 1px solid #DCDFE6; border-radius: 4px; font-size: 14px;
-    cursor: pointer; user-select: none; transition: all .12s ease;
-  }
-  .platform-chip input { accent-color: #3B7BFF; }
-  .platform-chip:has(input:checked) { border-color: #3B7BFF; background: #F0F6FF; color: #2E6AE5; }
+  .char-count { float: right; font-size: 12px; color: #98A1B0; font-weight: 400; }
   .form-actions { display: flex; gap: 12px; margin-top: 28px; }
   .btn-primary, .btn-plain {
     height: 38px; padding: 0 22px; border-radius: 4px; font-size: 14px; cursor: pointer;
@@ -155,39 +146,129 @@
   }
   .btn-primary { background: #3B7BFF; color: #FFF; }
   .btn-primary:hover { background: #2E6AE5; box-shadow: 0 4px 12px rgba(59,123,255,.3); }
+  .btn-primary:disabled { background: #A8C4F5; cursor: not-allowed; box-shadow: none; }
   .btn-plain { background: #FFF; color: #1F2329; border-color: #DCDFE6; }
   .btn-plain:hover { border-color: #3B7BFF; color: #3B7BFF; }
-  .gen-btn {
-    background: none; border: none; color: #3B7BFF; font-size: 12px;
-    cursor: pointer; padding: 0; margin-left: 8px;
-  }
-  .gen-btn:hover { text-decoration: underline; }
 
-  /* ---------------- 报告详情 ---------------- */
-  .report-meta { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 10px; font-size: 13px; color: #6B7280; }
-  .report-meta b { color: #1F2329; font-weight: 500; }
+  /* ---------------- AI 过程面板 ---------------- */
+  .ai-panel {
+    width: 860px; max-width: 100%; background: #FFF; border: 1px solid #EBEEF5;
+    border-radius: 8px; padding: 20px 24px; margin-bottom: 16px;
+  }
+  .ai-panel h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+  .ai-steps { margin-top: 12px; font-size: 13px; color: #4E5561; line-height: 1.7; }
+  .ai-steps li { padding-left: 18px; position: relative; margin-bottom: 4px; }
+  .ai-steps li::before { content: ""; position: absolute; left: 2px; top: 8px; width: 6px; height: 6px; border-radius: 50%; background: #3B7BFF; }
+  .ai-note { font-size: 12px; color: #98A1B0; margin-top: 10px; }
+  .spinner {
+    display: inline-block; width: 14px; height: 14px; border: 2px solid #D5E3FF;
+    border-top-color: #3B7BFF; border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ok-dot { color: #1FA463; font-weight: 700; }
+
+  /* ---------------- 问法矩阵 ---------------- */
+  .matrix-wrap { width: 860px; max-width: 100%; }
+  .phase-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+  .phase-tab {
+    padding: 8px 18px; border-radius: 4px; border: 1px solid #DCDFE6; background: #FFF;
+    font-size: 14px; cursor: pointer; transition: all .12s ease;
+  }
+  .phase-tab.active { border-color: #3B7BFF; background: #E8F0FF; color: #2E6AE5; font-weight: 500; }
+  .phase-card { background: #FFF; border: 1px solid #EBEEF5; border-radius: 8px; padding: 18px 20px; margin-bottom: 16px; }
+  .phase-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .phase-head h3 { font-size: 15px; font-weight: 600; }
+  .phase-head .cnt { font-size: 12px; color: #98A1B0; }
+  .phase-def { margin-top: 6px; font-size: 12px; color: #6B7280; line-height: 1.6; }
+  .phase-toolbar { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+  .tool-btn {
+    display: inline-flex; align-items: center; gap: 4px; height: 30px; padding: 0 12px;
+    border: 1px solid #DCDFE6; border-radius: 4px; background: #FFF;
+    font-size: 12px; color: #1F2329; cursor: pointer; transition: all .12s ease;
+  }
+  .tool-btn:hover:not(:disabled) { border-color: #3B7BFF; color: #3B7BFF; }
+  .tool-btn:disabled { color: #C0C6CF; cursor: not-allowed; }
+  .tool-btn.danger:hover:not(:disabled) { border-color: #E5484D; color: #E5484D; }
+  .q-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .q-table th {
+    background: #E8EEF7; color: #6B7280; font-weight: 400; text-align: left;
+    padding: 9px 12px; border: 1px solid #EBEEF5; white-space: nowrap;
+  }
+  .q-table td { padding: 9px 12px; border: 1px solid #EBEEF5; vertical-align: middle; }
+  .q-table td.q { max-width: 320px; }
+  .heat { font-weight: 600; color: #F5941E; white-space: nowrap; }
+  .heat-note { color: #6B7280; font-size: 12px; max-width: 240px; }
+  .stepper { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .stepper button {
+    width: 22px; height: 22px; border: 1px solid #DCDFE6; background: #FFF;
+    border-radius: 3px; cursor: pointer; font-size: 13px; line-height: 1; color: #1F2329;
+  }
+  .stepper button:disabled { color: #C0C6CF; cursor: not-allowed; }
+  .edit-q { color: #3B7BFF; font-size: 12px; cursor: pointer; margin-left: 8px; white-space: nowrap; }
+  .edit-q:hover { text-decoration: underline; }
+
+  /* ---------------- 模型选择 / 算力 ---------------- */
+  .model-section { background: #FFF; border: 1px solid #EBEEF5; border-radius: 8px; padding: 18px 20px; margin-bottom: 16px; }
+  .model-section h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .model-section .hint { font-size: 12px; color: #98A1B0; margin-bottom: 12px; }
+  .model-group-label { font-size: 13px; color: #6B7280; margin: 10px 0 8px; }
+  .model-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+  .model-item {
+    width: 96px; border: 1px solid #EBEEF5; border-radius: 8px; background: #FFF;
+    display: flex; flex-direction: column; align-items: center; padding: 12px 4px 10px;
+    cursor: pointer; position: relative; transition: all .12s ease; user-select: none;
+  }
+  .model-item:hover { border-color: #9DC0FF; }
+  .model-item.selected { border-color: #3B7BFF; background: #F0F6FF; box-shadow: 0 0 0 1px #3B7BFF inset; }
+  .model-emoji { font-size: 24px; line-height: 1.2; }
+  .model-name { margin-top: 6px; font-size: 12px; color: #1F2329; text-align: center; }
+  .model-check {
+    position: absolute; top: 4px; right: 4px; width: 16px; height: 16px;
+    border-radius: 50%; background: #3B7BFF; color: #FFF; font-size: 11px;
+    display: none; align-items: center; justify-content: center;
+  }
+  .model-item.selected .model-check { display: flex; }
+  .model-tag { position: absolute; top: 4px; left: 4px; font-size: 10px; color: #98A1B0; }
+
+  .price-box {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 20px;
+    margin-top: 14px; padding: 12px 14px; background: #F7F9FC; border-radius: 6px;
+    font-size: 13px; color: #4E5561;
+  }
+  .price-box b { color: #F5941E; font-size: 15px; }
+  .price-box .left b { color: #1FA463; }
+  .price-box .note { width: 100%; font-size: 12px; color: #98A1B0; }
+  .start-bar { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
+  .start-bar .fee { font-size: 12px; color: #98A1B0; max-width: 460px; line-height: 1.6; }
+
+  /* ---------------- 报告 ---------------- */
   .section-card {
-    width: 660px; max-width: 100%; background: #FFF; border: 1px solid #EBEEF5;
+    width: 860px; max-width: 100%; background: #FFF; border: 1px solid #EBEEF5;
     border-radius: 8px; padding: 22px 24px; margin-bottom: 16px;
   }
   .section-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
   .section-card .note { font-size: 12px; color: #98A1B0; line-height: 1.7; }
-  .score-box { display: flex; gap: 32px; align-items: center; }
-  .score-num { font-size: 40px; font-weight: 700; color: #C6CBD4; }
-  .score-label { font-size: 13px; color: #6B7280; margin-top: 4px; }
-  .matrix-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .matrix-table th {
-    background: #E8EEF7; color: #6B7280; font-weight: 400; text-align: left;
-    padding: 9px 12px; border: 1px solid #EBEEF5; white-space: nowrap;
+  .demo-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 3px; font-size: 11px;
+    background: #FFF4E5; color: #C97A10; border: 1px solid #F5D9A8; margin-left: 10px; font-weight: 400;
+    vertical-align: 2px;
   }
-  .matrix-table td { padding: 9px 12px; border: 1px solid #EBEEF5; }
-  .matrix-table td.q { color: #1F2329; max-width: 260px; }
-  .cell-todo { color: #98A1B0; }
-  .q-type { display: inline-block; margin-left: 8px; font-size: 11px; color: #98A1B0; }
+  .report-meta { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 10px; font-size: 13px; color: #6B7280; }
+  .report-meta b { color: #1F2329; font-weight: 500; }
+  .score-box { display: flex; gap: 32px; align-items: center; }
+  .score-num { font-size: 40px; font-weight: 700; }
+  .score-label { font-size: 13px; color: #6B7280; margin-top: 4px; }
+  .stat-row { display: flex; gap: 40px; margin-top: 6px; }
+  .stat-row .s b { display: block; font-size: 20px; font-weight: 600; }
+  .stat-row .s span { font-size: 12px; color: #6B7280; }
+  .cell-hit { color: #1FA463; font-weight: 500; }
+  .cell-miss { color: #98A1B0; }
+  .cell-rec { color: #3B7BFF; font-weight: 600; }
 
   /* ---------------- 占位视图 / toast ---------------- */
   .placeholder-view { text-align: center; padding: 80px 0; color: #6B7280; }
-  .placeholder-view .icon { margin-bottom: 16px; color: #C6CBD4; }
+  .placeholder-view .icon { margin-bottom: 16px; color: #C6CBD4; font-size: 40px; }
   .placeholder-view p { font-size: 14px; }
   .placeholder-view .sub { margin-top: 8px; font-size: 12px; color: #98A1B0; }
   .toast {
@@ -197,8 +278,6 @@
     transition: all .25s ease; z-index: 100;
   }
   .toast.show { opacity: .92; transform: translateX(-50%) translateY(0); }
-
-  /* ---------------- 悬浮客服 ---------------- */
   .fab {
     position: fixed; right: 48px; bottom: 32px; width: 48px; height: 48px;
     border-radius: 50%; background: #3B7BFF;
@@ -211,7 +290,6 @@
 </head>
 <body>
 
-<!-- 左侧导航 -->
 <aside class="sidebar">
   <div class="side-top">
     <div class="brand-logo">空</div>
@@ -220,112 +298,134 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
     </button>
   </div>
-
   <ul class="nav">
-    <li class="nav-item" data-view="create">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-      <span>创建新分析</span>
-    </li>
-    <li class="nav-item" data-view="library">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      <span>报告库</span>
-    </li>
-    <li class="nav-item" data-view="service">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
-      <span>服务中心</span>
-    </li>
+    <li class="nav-item" data-view="create"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>创建新分析</span></li>
+    <li class="nav-item" data-view="library"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg><span>报告库</span></li>
+    <li class="nav-item" data-view="member"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>会员中心</span></li>
   </ul>
-
   <ul class="nav">
-    <li class="nav-item" data-view="geo-system">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
-      <span>GEO优化系统</span>
-    </li>
+    <li class="nav-item" data-view="geo-system"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg><span>GEO优化系统</span></li>
   </ul>
-
-  <ul class="nav">
-    <li class="nav-item" data-view="member">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      <span>会员中心</span>
-    </li>
-  </ul>
-
   <div class="side-sep"></div>
-
   <div class="nav-group-label">历史记录</div>
   <ul class="nav" id="history-list"></ul>
-
   <div class="side-bottom">
     <div class="brand-logo">空</div>
     <div class="brand-name">空针数据</div>
   </div>
 </aside>
 
-<!-- 主区 -->
 <main class="main" id="main"></main>
 
-<!-- 悬浮客服 -->
-<div class="fab" title="联系客服" onclick="switchView('service')">
+<div class="fab" title="联系客服" onclick="toast('客服入口规划中')">
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
 /* ==================== 数据层 ==================== */
 const STORE_KEY = 'kz_reports';
-const PLATFORMS = ['豆包', '腾讯元宝', 'DeepSeek', 'Kimi', '文心一言'];
-const Q_TYPES = [
-  { key: 'brand',    name: '品牌词', tpl: b => `${b}怎么样` },
-  { key: 'industry', name: '行业推荐', tpl: b => `${b}所属行业里有哪些值得推荐的品牌` },
-  { key: 'compare',  name: '竞品对比', tpl: b => `${b}和竞品相比哪个好` },
-  { key: 'pain',     name: '痛点求解', tpl: b => `想解决行业常见问题，${b}能行吗` },
-  { key: 'region',   name: '地域限制', tpl: b => `在本地找${b}类的服务，有推荐的吗` },
+const CREDIT_KEY = 'kz_credits';
+const CREDIT_COST_PER_CALL = 4; // 演示口径：每次对话消耗4点算力
+
+const PLATFORMS_MODELS = [
+  { id: 'doubao-web',  name: '豆包·网页端',  emoji: '🔵', group: '国内' },
+  { id: 'doubao-mob',  name: '豆包·手机端',  emoji: '📱', group: '国内' },
+  { id: 'ds-web',      name: 'DeepSeek',     emoji: '🐋', group: '国内' },
+  { id: 'qw-web',      name: '千问·网页端',  emoji: '🌀', group: '国内' },
+  { id: 'qw-mob',      name: '千问·手机端',  emoji: '📲', group: '国内' },
+  { id: 'yb-web',      name: '元宝·网页端',  emoji: '🟣', group: '国内' },
+  { id: 'yb-mob',      name: '元宝·手机端',  emoji: '☎️', group: '国内' },
+  { id: 'wenxin',      name: '文心一言',     emoji: '🟦', group: '国内' },
+  { id: 'kimi',        name: 'Kimi',         emoji: '🌙', group: '国内' },
+  { id: 'gemini',      name: 'Gemini',       emoji: '💠', group: '国外' },
+  { id: 'gpt',         name: 'GPT',          emoji: '🟢', group: '国外' },
+  { id: 'grok',        name: 'Grok',         emoji: '⚡', group: '国外' },
+];
+
+const PHASES = {
+  pos: { name: '正面评估期', def: '用户从正向角度比较品牌与方案（哪家好、哪家专业、值得推荐吗），关注能力、口碑与性价比。' },
+  neg: { name: '负面质疑期', def: '用户带着避坑心态反向搜索（有哪些坑、口碑差、不靠谱），用于排除风险、缩小选择范围。' },
+  dec: { name: '品牌决策期', def: '用户已聚焦到具体品牌，追问价格、试用、案例、售后等落地问题，处于临门一脚的决策阶段。' },
+};
+
+/* 问法模板（自有写法）：p=地域前缀 c=核心词 b=品牌名 */
+const Q_TPL = {
+  pos: [
+    p => `${p}做${'{c}'}的哪家比较靠谱`,
+    p => `${p}${'{c}'}服务哪家口碑好`,
+    p => `${'{c}'}服务商怎么挑，${p}有推荐吗`,
+    p => `${p}${'{c}'}公司排名怎么看`,
+    p => `${'{c}'}行业里头部服务商都有谁`,
+    p => `${p}想找专业做${'{c}'}的团队，求推荐`,
+  ],
+  neg: [
+    p => `${p}${'{c}'}服务商有哪些常见的坑`,
+    p => `${'{c}'}项目实施失败一般是什么原因`,
+    p => `${p}选${'{c}'}公司怎么避免被忽悠`,
+    p => `${'{c}'}外包最常见的投诉是什么`,
+    p => `${p}${'{c}'}哪家口碑不太好，想避雷`,
+    p => `怎么判断一家${'{c}'}公司靠不靠谱`,
+  ],
+  dec: [
+    (p, b) => `${p}${b}的${'{c}'}多少钱`,
+    (p, b) => `${b}这家${'{c}'}服务商怎么样`,
+    (p, b) => `${b}的${'{c}'}能免费试用吗`,
+    (p, b) => `${b}做过哪些${'{c}'}案例`,
+    (p, b) => `${b}和同档服务商比怎么样`,
+    (p, b) => `${b}的售后和交付周期如何`,
+  ],
+};
+
+const HEAT_NOTES = [
+  '采购决策高频问法，转化价值高',
+  '本地搜索活跃，意图明确',
+  '口语化表达，贴近真实提问习惯',
+  '对比类咨询量大模型中常见',
+  '价格/风险敏感型提问，决策期典型',
 ];
 
 function fmtTime(d) {
   const p = n => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
 }
-function loadReports() {
-  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; } catch (e) { return []; }
-}
-function saveReports(list) { localStorage.setItem(STORE_KEY, JSON.stringify(list)); }
+function hash(str) { let h = 0; for (const ch of String(str)) { h = (h * 31 + ch.codePointAt(0)) | 0; } return Math.abs(h); }
+function rndFrom(seed, min, max) { return min + hash(seed) % (max - min + 1); }
+function loadReports() { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; } catch (e) { return []; } }
+function saveReports(l) { localStorage.setItem(STORE_KEY, JSON.stringify(l)); }
+function getCredits() { return Number(localStorage.getItem(CREDIT_KEY) || 2000); }
+function setCredits(v) { localStorage.setItem(CREDIT_KEY, String(v)); }
 
-/* 首次访问预置一条自测记录（空针=自建试验田，对外不包装成案例） */
-(function seed() {
-  if (!localStorage.getItem(STORE_KEY)) {
-    saveReports([{
-      id: 'seed-1', brand: '空针数据', category: 'GEO监测工具（自测）',
-      competitors: '', platforms: ['豆包', 'DeepSeek'],
-      questions: Q_TYPES.map(t => ({ type: t.key, text: t.tpl('空针数据') })),
-      createdAt: '2026-09-14 10:07:12', status: 'todo',
-    }]);
+function genQuestions(brand, category, region) {
+  const p = region && region !== '全国' ? region : '';
+  const out = {};
+  for (const key of Object.keys(PHASES)) {
+    out[key] = Q_TPL[key].map((tpl, i) => {
+      const text = tpl(p, brand).replaceAll('{c}', category);
+      return {
+        text,
+        heat: rndFrom(text + i, 82, 96),
+        note: HEAT_NOTES[hash(text) % HEAT_NOTES.length],
+        rounds: 1,
+      };
+    });
   }
-})();
+  return out;
+}
 
 let reports = loadReports();
-function getReport(id) { return reports.find(r => r.id === id); }
-
-/* ==================== 视图层 ==================== */
-const main = document.getElementById('main');
 let currentView = 'home', currentReportId = null;
 
-const svg = {
-  doc: '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/></svg>',
-  clock: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
-};
-
-function statusTag(s) {
-  return s === 'doing'
-    ? '<span class="tag doing">监测中</span>'
-    : '<span class="tag todo">待监测</span>';
-}
+/* ==================== 视图：落地页 / 报告库 ==================== */
+const main = document.getElementById('main');
+const statusTag = s => ({
+  todo: '<span class="tag todo">待监测</span>',
+  analyzing: '<span class="tag doing">分析中</span>',
+  done: '<span class="tag done">已生成</span>',
+}[s]);
 
 function reportRows(list) {
-  if (!list.length) {
-    return '<tr class="empty-row"><td colspan="4">暂无报告，点击「创建新分析」开始</td></tr>';
-  }
+  if (!list.length) return '<tr class="empty-row"><td colspan="4">暂无报告，点击「创建新分析」开始</td></tr>';
   return list.map(r => `
     <tr>
       <td class="t-time">${r.createdAt}</td>
@@ -339,7 +439,7 @@ function reportRows(list) {
 function renderHome() {
   main.innerHTML = `
     <div class="hero">
-      <div class="hero-logo" title="品牌LOGO占位">
+      <div class="hero-logo">
         <svg width="52" height="52" viewBox="0 0 48 48" fill="none">
           <path d="M24 6 38 38H10Z" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round"/>
           <circle cx="24" cy="28" r="4" fill="#FFFFFF"/>
@@ -351,10 +451,7 @@ function renderHome() {
     </div>
     <div class="report-table-wrap">
       <table class="report-table">
-        <thead><tr>
-          <th class="t-time">共享报告</th><th>报告名称</th><th>产品说明</th>
-          <th class="t-status">状态</th><th class="t-view">操作</th>
-        </tr></thead>
+        <thead><tr><th class="t-time">共享报告</th><th>报告名称</th><th>产品说明</th><th class="t-status">状态</th><th class="t-view">操作</th></tr></thead>
         <tbody>${reportRows(reports)}</tbody>
       </table>
     </div>`;
@@ -362,144 +459,345 @@ function renderHome() {
 
 function renderLibrary() {
   main.innerHTML = `
-    <div class="page-head">
-      <div class="page-title">报告库</div>
-      <div class="page-desc">共 ${reports.length} 份报告，数据为本地演示存储</div>
-    </div>
+    <div class="page-head"><div class="page-title">报告库</div>
+      <div class="page-desc">共 ${reports.length} 份报告 · 本地演示存储</div></div>
     <div class="report-table-wrap" style="margin-top:0">
       <table class="report-table">
-        <thead><tr>
-          <th class="t-time">创建时间</th><th>报告名称</th><th>产品说明</th>
-          <th class="t-status">状态</th><th class="t-view">操作</th>
-        </tr></thead>
+        <thead><tr><th class="t-time">创建时间</th><th>报告名称</th><th>产品说明</th><th class="t-status">状态</th><th class="t-view">操作</th></tr></thead>
         <tbody>${reportRows(reports)}</tbody>
       </table>
     </div>`;
 }
 
+/* ==================== 视图：创建（第一步） ==================== */
 function renderCreate() {
   main.innerHTML = `
-    <div class="page-head">
-      <div class="page-title">创建新分析</div>
-      <div class="page-desc">填写品牌与监测问法，生成 AI 可见度分析报告框架</div>
-    </div>
+    <div class="page-head"><div class="page-title">创建新分析</div>
+      <div class="page-desc">第一步：填写品牌资料，由系统提取三阶段用户意图并生成问法矩阵</div></div>
     <div class="form-card">
       <div class="form-item" id="fi-brand">
-        <label>品牌名称<span class="req">*</span></label>
+        <label>品牌名称<span class="req">*</span><span class="tip">建议填写简称</span></label>
         <input type="text" id="f-brand" placeholder="例如：空针数据" maxlength="30">
         <div class="err">请填写品牌名称</div>
       </div>
       <div class="form-item" id="fi-category">
-        <label>行业 / 产品说明<span class="req">*</span><span class="tip">用于报告分类与行业问法生成</span></label>
-        <input type="text" id="f-category" placeholder="例如：GEO监测工具" maxlength="50">
-        <div class="err">请填写行业或产品说明</div>
+        <label>产品核心词<span class="req">*</span><span class="char-count"><span id="cc-cat">0</span> / 20</span></label>
+        <input type="text" id="f-category" placeholder="主营产品/服务/优化核心词，例如：企业系统、国学培训" maxlength="20">
+        <div class="err">请填写产品核心词</div>
       </div>
       <div class="form-item">
-        <label>竞品品牌<span class="tip">选填，多个用顿号分隔</span></label>
-        <input type="text" id="f-competitors" placeholder="例如：竞品A、竞品B" maxlength="100">
+        <label>品牌描述<span class="tip">选填，不少于20字</span><span class="char-count"><span id="cc-desc">0</span> / 500</span></label>
+        <textarea id="f-desc" placeholder="尽量描述全面，可粘贴企业简介或产品简介（演示版不参与生成逻辑）" maxlength="500"></textarea>
       </div>
-      <div class="form-item" id="fi-platforms">
-        <label>监测平台<span class="req">*</span></label>
-        <div class="platform-group" id="f-platforms">
-          ${PLATFORMS.map(p => `<label class="platform-chip"><input type="checkbox" value="${p}">${p}</label>`).join('')}
-        </div>
-        <div class="err">请至少选择一个监测平台</div>
-      </div>
-      <div class="form-item" id="fi-questions">
-        <div class="label-row">
-          <label>分析问法<span class="req">*</span><span class="tip">每行一个问法</span></label>
-          <button type="button" class="gen-btn" onclick="genQuestions()">按五类问法矩阵生成</button>
-        </div>
-        <textarea id="f-questions" placeholder="每行一个问法，可点击上方按钮按 品牌词/行业推荐/竞品对比/痛点求解/地域限制 五类自动生成"></textarea>
-        <div class="err">请至少填写一个问法</div>
+      <div class="form-item">
+        <label>客户地域<span class="tip">作为提问词前缀；选「全国」则不带地域词</span></label>
+        <select id="f-region">
+          <option value="全国">全国</option>
+          <option>北京</option><option>上海</option><option>广州</option><option>深圳</option>
+          <option>沈阳</option><option>铁西区</option><option>杭州</option><option>成都</option>
+        </select>
       </div>
       <div class="form-actions">
-        <button class="btn-primary" onclick="submitCreate()">生成报告</button>
+        <button class="btn-primary" id="btn-extract" onclick="startExtract()">提取意图</button>
         <button class="btn-plain" onclick="switchView('home')">取消</button>
       </div>
     </div>`;
+  const cat = document.getElementById('f-category'), desc = document.getElementById('f-desc');
+  cat.addEventListener('input', () => document.getElementById('cc-cat').textContent = cat.value.length);
+  desc.addEventListener('input', () => document.getElementById('cc-desc').textContent = desc.value.length);
 }
 
-function genQuestions() {
-  const brand = document.getElementById('f-brand').value.trim() || '【品牌名】';
-  document.getElementById('f-questions').value =
-    Q_TYPES.map(t => t.tpl(brand)).join('\n');
-}
+/* ==================== 视图：意图提取（过程） ==================== */
+const EXTRACT_STEPS = [
+  '核验品牌资料完整性与关键词关联',
+  '结合地域信息圈定目标用户提问范围',
+  '按 正面评估 / 负面质疑 / 品牌决策 三阶段拆解用户意图',
+  '生成各阶段提问词并标注意图热度',
+  '输出问法矩阵，等待确认模型与问法',
+];
 
-function submitCreate() {
+function startExtract() {
   const brand = document.getElementById('f-brand').value.trim();
   const category = document.getElementById('f-category').value.trim();
-  const platforms = [...document.querySelectorAll('#f-platforms input:checked')].map(i => i.value);
-  const questions = document.getElementById('f-questions').value
-    .split('\n').map(s => s.trim()).filter(Boolean);
-
   let ok = true;
   const mark = (id, bad) => { document.getElementById(id).classList.toggle('invalid', bad); if (bad) ok = false; };
-  mark('fi-brand', !brand);
-  mark('fi-category', !category);
-  mark('fi-platforms', !platforms.length);
-  mark('fi-questions', !questions.length);
+  mark('fi-brand', !brand); mark('fi-category', !category);
   if (!ok) return;
 
   const report = {
-    id: 'r' + Date.now(),
-    brand, category,
-    competitors: document.getElementById('f-competitors').value.trim(),
-    platforms,
-    questions: questions.map((text, i) => ({
-      type: Q_TYPES[i % Q_TYPES.length].key, text,
-    })),
-    createdAt: fmtTime(new Date()),
-    status: 'todo',
+    id: 'r' + Date.now(), brand, category,
+    desc: document.getElementById('f-desc').value.trim(),
+    region: document.getElementById('f-region').value,
+    questions: null, models: [],
+    createdAt: fmtTime(new Date()), status: 'todo', cost: 0,
   };
-  reports.unshift(report);
-  saveReports(reports);
-  renderHistory();
-  toast('报告已创建，待接入引擎开始监测');
-  openReport(report.id);
+
+  document.getElementById('btn-extract').disabled = true;
+  const card = document.querySelector('.form-card');
+  card.style.opacity = .6;
+  card.insertAdjacentHTML('beforebegin', `
+    <div class="ai-panel" id="extract-panel">
+      <h3><span class="spinner" id="extract-spin"></span>正在提取用户意图<span style="font-weight:400;font-size:12px;color:#98A1B0">（演示加速，实际由AI生成约需30秒）</span></h3>
+      <ul class="ai-steps" id="extract-steps"></ul>
+      <div class="ai-note" id="extract-note">请勿刷新页面</div>
+    </div>`);
+
+  const ul = document.getElementById('extract-steps');
+  EXTRACT_STEPS.forEach((s, i) => {
+    setTimeout(() => {
+      ul.insertAdjacentHTML('beforeend', `<li>${s}</li>`);
+      if (i === EXTRACT_STEPS.length - 1) {
+        setTimeout(() => {
+          document.getElementById('extract-spin').outerHTML = '<span class="ok-dot">✓</span>';
+          document.getElementById('extract-note').textContent = '提取完成，正在打开问法矩阵…';
+          report.questions = genQuestions(brand, category, report.region);
+          reports.unshift(report);
+          saveReports(reports); renderHistory();
+          setTimeout(() => openMatrix(report.id), 700);
+        }, 600);
+      }
+    }, 700 * (i + 1));
+  });
+}
+
+/* ==================== 视图：问法矩阵（第二步） ==================== */
+function getReport(id) { return reports.find(r => r.id === id); }
+function updReport(r) { saveReports(reports); }
+
+function openMatrix(id) {
+  currentView = 'matrix'; currentReportId = id;
+  renderMatrix();
+  setActiveNav();
+}
+
+function calcCost(r) {
+  if (!r.questions) return 0;
+  const qs = Object.values(r.questions).flat();
+  const rounds = qs.reduce((s, q) => s + q.rounds, 0);
+  return r.models.length * rounds * CREDIT_COST_PER_CALL;
+}
+
+let matrixPhase = 'pos';
+
+function renderMatrix() {
+  const r = getReport(currentReportId);
+  if (!r) { switchView('library'); return; }
+  const locked = r.status === 'analyzing' || r.status === 'done';
+  const cost = calcCost(r);
+  const credits = getCredits();
+
+  const phaseHtml = key => {
+    const ph = PHASES[key];
+    const qs = r.questions[key];
+    return `
+    <div class="phase-card">
+      <div class="phase-head"><h3>${ph.name}</h3><span class="cnt">共${qs.length}条</span></div>
+      <div class="phase-def">${ph.def}</div>
+      <div class="phase-toolbar">
+        <button class="tool-btn danger" ${locked ? 'disabled' : ''} onclick="delChecked('${key}')">🗑 删除所选</button>
+        <button class="tool-btn" ${locked ? 'disabled' : ''} onclick="regenPhase('${key}')">↻ 再生成</button>
+        <button class="tool-btn" ${locked ? 'disabled' : ''} onclick="toast('批量添加：接入引擎后可用')">＋ 批量添加</button>
+      </div>
+      <table class="q-table">
+        <thead><tr>
+          <th style="width:32px"><input type="checkbox" onchange="toggleAll('${key}', this.checked)"></th>
+          <th style="width:40px">序号</th><th>提问词</th><th style="width:64px">意图热度</th><th>热度说明</th><th style="width:96px">对话次数</th>
+        </tr></thead>
+        <tbody>
+          ${qs.map((q, i) => `
+          <tr>
+            <td><input type="checkbox" class="qck-${key}" data-i="${i}"></td>
+            <td>${i + 1}</td>
+            <td class="q">${q.text}<span class="edit-q" ${locked ? 'style="visibility:hidden"' : ''} onclick="editQ('${key}', ${i})">修改</span></td>
+            <td class="heat">${q.heat}分</td>
+            <td class="heat-note">${q.note}</td>
+            <td><span class="stepper">
+              <button ${locked || q.rounds <= 1 ? 'disabled' : ''} onclick="setRounds('${key}', ${i}, -1)">−</button>
+              <span>${q.rounds}</span>
+              <button ${locked || q.rounds >= 3 ? 'disabled' : ''} onclick="setRounds('${key}', ${i}, 1)">＋</button>
+            </span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  };
+
+  const modelsHtml = group => PLATFORMS_MODELS.filter(m => m.group === group).map(m => `
+    <div class="model-item ${r.models.includes(m.id) ? 'selected' : ''}" ${locked ? 'style="pointer-events:none;opacity:.7"' : ''} onclick="toggleModel('${m.id}')">
+      <span class="model-check">✓</span>
+      <span class="model-emoji">${m.emoji}</span>
+      <span class="model-name">${m.name}</span>
+    </div>`).join('');
+
+  main.innerHTML = `
+    <div class="page-head">
+      <div class="page-title">问法矩阵 · ${r.brand}<span style="font-weight:400;font-size:13px;color:#6B7280">（核心词：${r.category}｜地域：${r.region}）</span></div>
+      <div class="page-desc">第二步：确认三阶段提问词，选择监测模型，开始 AI 检测</div>
+    </div>
+
+    <div class="phase-tabs">
+      ${Object.keys(PHASES).map(k => `<button class="phase-tab ${matrixPhase === k ? 'active' : ''}" onclick="matrixPhase='${k}';renderMatrix()">${PHASES[k].name}</button>`).join('')}
+    </div>
+    ${phaseHtml(matrixPhase)}
+
+    <div class="model-section">
+      <h3>选择监测模型</h3>
+      <div class="hint">已选 <b id="model-count">${r.models.length}</b> 个模型；增减模型或提问词都会改变算力消耗</div>
+      <div class="model-group-label">国内</div>
+      <div class="model-grid">${modelsHtml('国内')}</div>
+      <div class="model-group-label">国外</div>
+      <div class="model-grid">${modelsHtml('国外')}</div>
+      <div class="price-box">
+        <span>本次消耗算力：<b id="cost-num">${cost}</b> 点</span>
+        <span class="left">剩余算力：<b id="credit-num">${credits}</b> 点</span>
+        <span class="note">演示口径：每次模型对话 = ${CREDIT_COST_PER_CALL} 点算力；真实引擎接入后按实际成本结算</span>
+      </div>
+      <div class="start-bar">
+        <button class="btn-primary" id="btn-start" ${locked || !r.models.length || cost > credits ? 'disabled' : ''} onclick="startAnalysis()">开始AI检测</button>
+        <div class="fee">费用涵盖：数据采集、分析统计、分类存储与报告渲染。算力不足时可到会员中心补充（演示）。</div>
+      </div>
+    </div>`;
+
+  window.scrollTo(0, 0);
+}
+
+function toggleModel(id) {
+  const r = getReport(currentReportId);
+  const i = r.models.indexOf(id);
+  i >= 0 ? r.models.splice(i, 1) : r.models.push(id);
+  updReport(r); renderMatrix();
+}
+function toggleAll(key, on) {
+  document.querySelectorAll(`.qck-${key}`).forEach(c => c.checked = on);
+}
+function delChecked(key) {
+  const r = getReport(currentReportId);
+  const checked = [...document.querySelectorAll(`.qck-${key}`)].filter(c => c.checked).map(c => +c.dataset.i);
+  if (!checked.length) { toast('先勾选要删除的提问词'); return; }
+  r.questions[key] = r.questions[key].filter((_, i) => !checked.includes(i));
+  updReport(r); renderMatrix(); toast(`已删除 ${checked.length} 条`);
+}
+function regenPhase(key) {
+  const r = getReport(currentReportId);
+  r.questions[key] = genQuestions(r.brand, r.category, r.region)[key];
+  updReport(r); renderMatrix(); toast('已重新生成本阶段问法（演示模板）');
+}
+function setRounds(key, i, d) {
+  const r = getReport(currentReportId);
+  const q = r.questions[key][i];
+  q.rounds = Math.max(1, Math.min(3, q.rounds + d));
+  updReport(r); renderMatrix();
+}
+function editQ(key, i) {
+  const r = getReport(currentReportId);
+  const q = r.questions[key][i];
+  const v = prompt('修改提问词：', q.text);
+  if (v && v.trim()) { q.text = v.trim(); updReport(r); renderMatrix(); }
+}
+
+/* ==================== 视图：分析过程 + 报告 ==================== */
+const ANALYSIS_STEPS = [
+  '整理三阶段提问词并按模型分发任务',
+  '逐一向所选模型发起对话并抓取回答',
+  '解析回答中的品牌提及、推荐与引用来源',
+  '汇总统计可见度指标并分类存储',
+  '渲染分析报告',
+];
+
+function startAnalysis() {
+  const r = getReport(currentReportId);
+  const cost = calcCost(r);
+  if (!r.models.length) { toast('请先选择监测模型'); return; }
+  if (cost > getCredits()) { toast('算力不足，请到会员中心补充'); return; }
+  setCredits(getCredits() - cost);
+  r.status = 'analyzing'; r.cost = cost;
+  updReport(r);
+
+  main.innerHTML = `
+    <div class="page-head"><div class="page-title">正在分析 · ${r.brand}</div>
+      <div class="page-desc">模型 ${r.models.length} 个 · 提问 ${Object.values(r.questions).flat().length} 条 · 已扣算力 ${cost} 点（演示加速，真实流程约需数十分钟）</div></div>
+    <div class="ai-panel">
+      <h3><span class="spinner" id="ana-spin"></span>开始分析</h3>
+      <ul class="ai-steps" id="ana-steps"></ul>
+      <div class="ai-note" id="ana-note">演示模式下每步约1秒；真实引擎接入后此过程由 geo-engine-v0 执行</div>
+    </div>`;
+
+  const ul = document.getElementById('ana-steps');
+  ANALYSIS_STEPS.forEach((s, i) => {
+    setTimeout(() => {
+      ul.insertAdjacentHTML('beforeend', `<li>${s}</li>`);
+      if (i === ANALYSIS_STEPS.length - 1) {
+        setTimeout(() => {
+          document.getElementById('ana-spin').outerHTML = '<span class="ok-dot">✓</span>';
+          document.getElementById('ana-note').textContent = '分析完成（演示数据）';
+          r.status = 'done'; updReport(r); renderHistory();
+          setTimeout(() => openReport(r.id), 700);
+        }, 800);
+      }
+    }, 900 * (i + 1));
+  });
+}
+
+function cellState(qText, modelId) {
+  const h = hash(qText + '|' + modelId) % 10;
+  if (h < 2) return '<span class="cell-rec">推荐提及</span>';
+  if (h < 5) return '<span class="cell-hit">提及</span>';
+  if (h < 7) return '<span class="cell-hit">引用来源</span>';
+  return '<span class="cell-miss">未提及</span>';
 }
 
 function renderReport(r) {
-  const qTypeName = k => (Q_TYPES.find(t => t.key === k) || {}).name || '';
+  const modelNames = r.models.map(id => (PLATFORMS_MODELS.find(m => m.id === id) || {}).name).filter(Boolean);
+  const qs = Object.values(r.questions).flat();
+  const hitCount = qs.reduce((s, q) => s + r.models.filter(m => hash(q.text + '|' + m) % 10 < 7).length, 0);
+  const total = qs.length * r.models.length;
+  const score = total ? Math.round(hitCount / total * 100) : 0;
+
+  const phaseTable = key => `
+    <div class="section-card">
+      <h3>${PHASES[key].name} · 回答矩阵</h3>
+      <table class="q-table">
+        <thead><tr><th>提问词</th>${modelNames.map(n => `<th>${n}</th>`).join('')}</tr></thead>
+        <tbody>
+          ${r.questions[key].map(q => `
+            <tr><td class="q">${q.text}</td>
+            ${r.models.map(m => `<td>${cellState(q.text, m)}</td>`).join('')}</tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+
   main.innerHTML = `
     <div class="page-head">
-      <div class="page-title">《${r.brand} AI可见度分析报告》</div>
+      <div class="page-title">《${r.brand} AI可见度分析报告》<span class="demo-badge">演示数据 · 非真实监测</span></div>
       <div class="report-meta">
-        <span>创建时间 <b>${r.createdAt}</b></span>
-        <span>监测平台 <b>${r.platforms.join('、')}</b></span>
-        <span>问法数 <b>${r.questions.length}</b></span>
-        <span>状态 ${statusTag(r.status)}</span>
+        <span>生成时间 <b>${r.createdAt}</b></span>
+        <span>监测模型 <b>${modelNames.join('、') || '—'}</b></span>
+        <span>提问 <b>${qs.length}</b> 条</span>
+        <span>消耗算力 <b>${r.cost}</b> 点</span>
       </div>
     </div>
 
     <div class="section-card">
       <h3>可见度总览</h3>
       <div class="score-box">
-        <div><div class="score-num">--</div><div class="score-label">综合可见度得分</div></div>
-        <div class="note">得分待 geo-engine-v0 监测引擎接入后生成。<br>引擎将按下方问法逐一向各 AI 平台提问，统计品牌被提及 / 被推荐 / 被引用来源的比例。</div>
+        <div><div class="score-num" style="color:${score >= 60 ? '#1FA463' : score >= 30 ? '#F5941E' : '#E5484D'}">${score}</div>
+          <div class="score-label">综合可见度指数（演示）</div></div>
+        <div class="stat-row">
+          <div class="s"><b>${hitCount}</b><span>提及+推荐+引用 / ${total} 次回答</span></div>
+          <div class="s"><b>${r.questions.dec.length}</b><span>品牌决策期问法</span></div>
+          <div class="s"><b>${r.region}</b><span>地域范围</span></div>
+        </div>
       </div>
+      <p class="note" style="margin-top:12px">演示版：数值由确定性伪随机生成，用于验证报告结构。接入 geo-engine-v0 后展示真实监测结果。</p>
     </div>
 
-    <div class="section-card">
-      <h3>平台 × 问法 提及矩阵</h3>
-      <table class="matrix-table">
-        <thead><tr><th>分析问法</th>${r.platforms.map(p => `<th>${p}</th>`).join('')}</tr></thead>
-        <tbody>
-          ${r.questions.map(q => `
-            <tr>
-              <td class="q">${q.text}<span class="q-type">${qTypeName(q.type)}</span></td>
-              ${r.platforms.map(() => '<td class="cell-todo">未监测</td>').join('')}
-            </tr>`).join('')}
-        </tbody>
-      </table>
-      <p class="note" style="margin-top:12px">矩阵单元格将在引擎接入后展示：提及 / 推荐 / 未提及 / 引用来源。</p>
-    </div>
+    ${Object.keys(PHASES).map(phaseTable).join('')}
 
     <div class="section-card">
       <h3>下一步</h3>
       <div class="form-actions" style="margin-top:4px">
-        <button class="btn-primary" onclick="toast('监测引擎 geo-engine-v0 接入后可用（目标 2026-10-05）')">开始监测</button>
         <button class="btn-plain" onclick="switchView('library')">返回报告库</button>
+        <button class="btn-plain" onclick="toast('导出：接入引擎后提供 PDF 报告导出')">导出报告</button>
       </div>
     </div>`;
 }
@@ -508,34 +806,42 @@ function openReport(id) {
   const r = getReport(id);
   if (!r) { switchView('library'); return; }
   currentView = 'report'; currentReportId = id;
-  renderReport(r);
-  setActiveNav();
+  renderReport(r); setActiveNav();
 }
 
+/* ==================== 占位视图 / 会员中心 ==================== */
+function renderMember() {
+  main.innerHTML = `
+    <div class="page-head"><div class="page-title">会员中心</div>
+      <div class="page-desc">算力账户（演示）</div></div>
+    <div class="section-card" style="width:660px">
+      <h3>算力余额</h3>
+      <div class="score-box">
+        <div><div class="score-num" style="color:#1FA463">${getCredits()}</div><div class="score-label">点算力</div></div>
+        <div class="stat-row"><div class="s"><b>${CREDIT_COST_PER_CALL}点</b><span>每次模型对话</span></div></div>
+      </div>
+      <div class="form-actions" style="margin-top:16px">
+        <button class="btn-primary" onclick="setCredits(getCredits()+1000);renderMember();toast('已充值1000点（演示）')">充值（演示）</button>
+        <button class="btn-plain" onclick="toast('兑换码功能：接入支付后可用')">兑换码</button>
+      </div>
+    </div>`;
+}
 const PLACEHOLDERS = {
-  'service':       { title: '服务中心', sub: '常见问题与支持入口（规划中）' },
-  'geo-system':    { title: 'GEO优化系统', sub: '内容优化与投放执行模块（规划中）' },
-  'member':        { title: '会员中心', sub: '套餐与配额管理（规划中）' },
+  'geo-system': { title: 'GEO优化系统', sub: '内容优化与投放执行模块（规划中）' },
 };
 function renderPlaceholder(key) {
   const p = PLACEHOLDERS[key];
-  main.innerHTML = `
-    <div class="placeholder-view">
-      <div class="icon">${svg.doc}</div>
-      <p>${p.title}</p>
-      <p class="sub">${p.sub}</p>
-    </div>`;
+  main.innerHTML = `<div class="placeholder-view"><div class="icon">📄</div><p>${p.title}</p><p class="sub">${p.sub}</p></div>`;
 }
 
+/* ==================== 导航 ==================== */
 function renderHistory() {
   const list = document.getElementById('history-list');
   const recent = reports.slice(0, 5);
   list.innerHTML = recent.length
-    ? recent.map(r => `<li class="nav-sub-item" title="《${r.brand} AI可见度分析报告》" onclick="openReport('${r.id}')">${svg.clock}<span style="margin-left:8px">${r.brand}</span></li>`).join('')
+    ? recent.map(r => `<li class="nav-sub-item" title="《${r.brand} AI可见度分析报告》" onclick="openReport('${r.id}')">🕒<span style="margin-left:8px">${r.brand}</span></li>`).join('')
     : '<li class="nav-sub-item" style="cursor:default;color:#C6CBD4">暂无记录</li>';
 }
-
-/* ==================== 导航 ==================== */
 function setActiveNav() {
   document.querySelectorAll('.nav-item').forEach(el =>
     el.classList.toggle('active', el.dataset.view === currentView));
@@ -545,6 +851,7 @@ function switchView(view) {
   if (view === 'home') renderHome();
   else if (view === 'create') renderCreate();
   else if (view === 'library') renderLibrary();
+  else if (view === 'member') renderMember();
   else renderPlaceholder(view);
   setActiveNav();
 }
@@ -554,13 +861,19 @@ document.querySelectorAll('.nav-item[data-view]').forEach(el =>
 let toastTimer = null;
 function toast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-/* ==================== 启动 ==================== */
+/* ==================== 启动（兼容 v2 旧数据：无 questions 字段的记录补生成） ==================== */
+for (const r of reports) {
+  if (!r.questions) {
+    r.questions = genQuestions(r.brand, r.category, r.region || '全国');
+    if (r.status === 'todo') { /* 保留原状态 */ }
+  }
+}
+saveReports(reports);
 renderHistory();
 switchView('home');
 </script>
