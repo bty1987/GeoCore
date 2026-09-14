@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>消息自动化与 AI 客户经营 · 产品能力与客户场景说明</title>
+<!-- 咨询报告体家族（V2 同族迭代，direction-approved 已落档豁免） -->
+<!-- 视觉 DNA：深蓝刊头 + 衬线结论式标题 + 单一青绿高亮；与启动书 v2 同源 -->
+<style>
+  :root{
+    --navy:#051C2C; --navy-2:#0A2E44; --ink:#15242F; --ink-2:#4A6070;
+    --hairline:#D8E0E6; --panel:#F4F7F9; --green:#0E7C66;
+    --serif:"Songti SC","Noto Serif SC","Source Han Serif SC",STSong,serif;
+    --sans:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--sans);color:var(--ink);background:#fff;line-height:1.8;text-wrap:pretty}
+  .ph{border-bottom:1.5px dashed #B99A4E;padding:0 2px;font-weight:600;color:#7A6224}
+
+  .masthead{background:var(--navy);color:#fff;padding:0 0 36px}
+  .mast-top{display:flex;justify-content:space-between;align-items:center;padding:18px 56px;border-bottom:1px solid rgba(255,255,255,.16)}
+  .mast-top .firm{font-family:var(--serif);font-size:17px;font-weight:700;letter-spacing:.12em}
+  .mast-top .doc-no{font-family:var(--mono);font-size:12px;color:#8FA6B5;letter-spacing:.14em}
+  .mast-in{max-width:1240px;margin:0 auto;padding:42px 56px 0}
+  .masthead .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.28em;color:#7E9AAC;margin-bottom:16px}
+  .masthead h1{font-family:var(--serif);font-size:clamp(28px,3.2vw,40px);font-weight:700;line-height:1.35;max-width:24em;margin-bottom:14px}
+  .masthead h1 em{font-style:normal;border-bottom:3px solid var(--green);padding-bottom:2px}
+  .masthead .sub{font-size:16px;color:#B7C7D2;margin-bottom:28px}
+  .meta{display:flex;gap:0;border:1px solid rgba(255,255,255,.2);border-radius:8px;overflow:hidden;max-width:900px}
+  .meta div{padding:12px 20px;font-size:13px;color:#B7C7D2;border-left:1px solid rgba(255,255,255,.2);flex:1}
+  .meta div:first-child{border-left:none}
+  .meta b{display:block;color:#fff;font-size:14px;font-weight:600;margin-top:2px}
+
+  .frame{max-width:1240px;margin:0 auto;padding:40px 56px 0}
+  .chapter{margin-bottom:50px}
+  .ch-head{display:flex;align-items:baseline;gap:18px;margin-bottom:8px}
+  .ch-no{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--green);letter-spacing:.04em}
+  .ch-rule{flex:1;height:1px;background:var(--hairline);position:relative;top:-6px}
+  h2.action{font-family:var(--serif);font-size:22px;font-weight:700;line-height:1.45;margin-bottom:16px;max-width:30em}
+  p.lead{font-size:14.5px;color:var(--ink-2);margin-bottom:18px;max-width:72ch}
+  p.lead b, td b{color:var(--ink)}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:16px 0}
+  th{background:var(--navy);color:#fff;text-align:left;padding:9px 13px;font-weight:600;font-size:12.5px;letter-spacing:.05em}
+  td{padding:10px 13px;border-bottom:1px solid var(--hairline);vertical-align:top}
+  tr:nth-child(even) td{background:var(--panel)}
+  td.k{font-weight:600;white-space:nowrap}
+  td .mut{color:var(--ink-2);font-size:12.5px}
+
+  .tri{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0}
+  .tri .cell{border:1px solid var(--hairline);border-top:3px solid var(--navy);padding:16px;background:#fff}
+  .tri .cell em{display:block;font-style:normal;font-family:var(--mono);font-size:12px;color:var(--green);font-weight:700;margin-bottom:6px;letter-spacing:.06em}
+  .tri .cell b{display:block;font-size:14.5px;margin-bottom:5px}
+  .tri .cell p{font-size:13px;color:var(--ink-2)}
+
+  .note{border-left:3px solid var(--green);background:var(--panel);padding:14px 18px;font-size:14px;color:var(--ink);margin:18px 0}
+  .note b{color:var(--navy)}
+
+  .quote{background:var(--panel);border-left:3px solid var(--navy);padding:12px 16px;font-size:13.5px;margin:12px 0;color:var(--ink)}
+  .quote::before{content:"客户消息 ▸ ";font-family:var(--mono);font-size:11.5px;color:var(--green);font-weight:700;letter-spacing:.05em}
+
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+  .duo .col{border:1px solid var(--hairline);padding:18px;background:#fff}
+  .duo .col.do{border-top:3px solid var(--navy)}
+  .duo .col.dont{border-top:3px solid #B0B8BF}
+  .duo h4{font-family:var(--serif);font-size:15.5px;margin-bottom:8px}
+  .duo li{list-style:none;font-size:13.5px;padding:5px 0 5px 20px;position:relative;color:var(--ink)}
+  .duo .do li::before{content:"—";position:absolute;left:0;color:var(--navy);font-family:var(--mono)}
+  .duo .dont li::before{content:"×";position:absolute;left:0;color:#9AA6AE;font-family:var(--mono)}
+
+  .final{background:var(--navy);color:#fff;padding:44px 48px;margin:34px 0 0}
+  .final .fk{font-family:var(--mono);font-size:11.5px;letter-spacing:.26em;color:#7E9AAC;margin-bottom:14px}
+  .final h3{font-family:var(--serif);font-size:26px;font-weight:700;line-height:1.5;margin-bottom:18px}
+  .final h3 em{font-style:normal;border-bottom:3px solid var(--green);padding-bottom:2px}
+  .final .tri3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
+  .final .tri3 div{border:1px solid rgba(255,255,255,.22);padding:14px 16px;font-size:14px;font-weight:600;text-align:center;background:rgba(255,255,255,.05)}
+  .final .tri3 span{display:block;font-family:var(--mono);font-size:11px;color:#7E9AAC;font-weight:400;margin-bottom:4px}
+  .final p.fin-note{font-size:13px;color:#9DB3C2;margin-top:22px;line-height:1.8}
+
+  footer{margin-top:50px;background:var(--navy);color:#8FA6B5;padding:22px 56px;font-size:12.5px;line-height:1.8}
+  footer .f-in{max-width:1240px;margin:0 auto}
+
+  @page{size:A4;margin:8mm 0 16mm}
+  @media print{
+    .frame{padding:36px 48px 4px}
+    .masthead{padding-bottom:22px}
+    .mast-in{padding:24px 48px 0}
+    .mast-top{padding:13px 48px}
+    h2.action,.ch-head{break-after:avoid}
+    table{break-inside:auto}
+    tr,th{break-inside:avoid}
+    .tri{grid-template-columns:1fr;break-inside:auto}
+    .tri .cell{border-left:none;border-top:1px solid #D8E0E6;padding:12px 0 8px;break-inside:avoid}
+    .duo{grid-template-columns:1fr}
+    .note,.quote,.meta,.final{break-inside:avoid}
+    .chapter{break-inside:auto}
+    .chapter:last-child{margin-bottom:0}
+    footer{background:#fff;color:#8AA0AF;border-top:1px solid #D8E0E6;padding:10px 48px 0;margin-top:0;break-inside:avoid}
+    footer .f-in{margin:0}
+    body{background:#fff}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="mast-top">
+    <div class="firm"><span class="ph" style="border-color:#5A7488;color:#C6D5DF">【服务方名称】</span></div>
+    <div class="doc-no">MSG-AI-SCENARIOS · <span class="ph" style="border-color:#5A7488;color:#C6D5DF">【日期】</span></div>
+  </div>
+  <div class="mast-in">
+    <div class="kicker">MESSAGE AUTOMATION × AI CUSTOMER INTELLIGENCE</div>
+    <h1>让每一条客户消息，<em>都变成可以经营的业务资产</em></h1>
+    <p class="sub">消息自动化与 AI 客户经营 · 产品能力与客户场景说明　·　面向企业 / 门店 / 工作室 / 服务型组织</p>
+    <div class="meta">
+      <div>产品定位<b>客户信息与业务经营助手</b></div>
+      <div>解决的问题<b>聊天里的业务留不住</b></div>
+      <div>工作原则<b>AI 整理分析 · 人确认</b></div>
+      <div>交付形态<b>系统方案 + 持续服务</b></div>
+    </div>
+  </div>
+</header>
+
+<div class="frame">
+
+  <div class="chapter">
+    <div class="ch-head"><span class="ch-no">01</span><div class="ch-rule"></div></div>
+    <h2 class="action">我们不是「微信机器人」，而是客户信息与业务经营助手</h2>
+    <p class="lead">很多企业每天都有大量业务发生在聊天工具里：客户咨询散落在不同员工的聊天记录中、需求没有被完整记录、员工承诺过的事情容易遗忘、老板无法及时知道业务进展。我们提供的，是<b>帮企业接收和理解客户信息，把聊天中的需求、意向、承诺和业务状态沉淀下来，再通过 AI 进行整理、分析和辅助决策</b>。</p>
+    <div class="tri">
+      <div class="cell"><em>转变一</em><b>聊天记录 → 业务资产</b><p>散落在个人账号里的沟通，变成可识别、可整理、可沉淀、可查询、可分析、可协作的业务资产。</p></div>
+      <div class="cell"><em>转变二</em><b>凭记忆 → 有档案</b><p>客户资料、业务节点、重要承诺自动进入客户档案——重要事情不再只存在某个人的脑子里。</p></div>
+      <div class="cell"><em>转变三</em><b>人肉整理 → AI 辅助</b><p>翻记录、复制粘贴、手工填表交给 AI；员工把时间用在真正需要判断和沟通的事情上。</p></div>
+    </div>
+    <div class="note"><b>产品原则：</b>系统负责理解、整理、分析和辅助；重要的对外沟通由人负责确认。<b>内部提醒</b>（提醒员工有待处理客户）是业务管理能力；<b>对外发送</b>（系统直接向客户发消息）不作为产品核心卖点。</div>
+  </div>
+
+  <div class="chapter">
+    <div class="ch-head"><span class="ch-no">02</span><div class="ch-rule"></div></div>
+    <h2 class="action">客户真正需要解决的八类问题</h2>
+    <p class="lead">以下每一类问题，都来自企业日常经营的真实场景——对照看看，您的企业中了几个。</p>
+    <table>
+      <thead><tr><th style="width:150px">问题</th><th>常见现状</th><th>我们提供什么</th><th style="width:150px">带来的价值</th></tr></thead>
+      <tr><td class="k">1. 客户来了，不知道发生了什么</td><td>咨询散在不同员工的聊天里，需求没有统一记录，老板不知道每天来了多少有效客户</td><td>汇总消息、识别新客/重复客户、提取需求与关注点、生成咨询摘要、统一客户档案</td><td class="mut">知道客户是谁、想要什么、处于什么状态</td></tr>
+      <tr><td class="k">2. 员工重复整理同样的信息</td><td>每天翻聊天记录、复制粘贴需求、手工填表，耗时且不出成果</td><td>自动生成聊天摘要、提取客户信息、转成结构化记录、快速查询历史沟通</td><td class="mut">员工少做重复整理，时间用在判断和沟通上</td></tr>
+      <tr><td class="k">3. 有意向，但业务状态不清</td><td>「有兴趣」「再考虑」「预算确认后推进」只停留在聊天里，没人跟</td><td>识别意向、提取阶段与时间节点、记录顾虑、生成待跟进清单、长期无进展自动提示</td><td class="mut">机会从模糊聊天变成清晰状态</td></tr>
+      <tr><td class="k">4. 老板看不见业务</td><td>只能追着员工问：来了多少客户？谁最有意向？哪里卡住了？</td><td>客户阶段分布、新增/待处理/沉默统计、来源与需求分析、经营看板</td><td class="mut">从「追着问」到「打开就知道」</td></tr>
+      <tr><td class="k">5. 员工离职，客户被带走</td><td>客户只认某个员工，历史沟通没沉淀，交接就是一句「您接一下」</td><td>关键信息沉淀企业系统、沟通摘要与业务阶段归档、支持客户交接</td><td class="mut">员工可以流动，客户资产不流失</td></tr>
+      <tr><td class="k">6. 问题反复出现，没人分析</td><td>客户常问什么、为什么犹豫、哪里易投诉——没人统计过</td><td>高频问题归纳、异议与流失原因识别、薄弱环节发现，反哺培训与产品</td><td class="mut">从客户消息中持续学习</td></tr>
+      <tr><td class="k">7. 流程复杂，容易漏步骤</td><td>资料不齐、节点没记、标准不一，管理者不知道卡在哪</td><td>按消息识别业务阶段、流程节点与待办整理、缺失资料提示</td><td class="mut">流程更稳，少漏一步客户少等一次</td></tr>
+      <tr><td class="k">8. 老客户没持续经营</td><td>获客花大钱，老客户很久没联系、复购机会没人发现</td><td>老客户整理、复购机会识别、客户分层、回访计划辅助</td><td class="mut">不只会获客，也能经营客户</td></tr>
+    </table>
+  </div>
+
+  <div class="chapter">
+    <div class="ch-head"><span class="ch-no">03</span><div class="ch-rule"></div></div>
+    <h2 class="action">五个典型应用场景</h2>
+    <table>
+      <thead><tr><th style="width:130px">场景</th><th style="width:250px">客户消息（原话示例）</th><th>系统做什么</th><th style="width:150px">客户得到</th></tr></thead>
+      <tr><td class="k">咨询自动整理</td><td>「我想先了解一下，你们提供什么服务？大概多少钱？怎么预约？」</td><td>识别咨询类型、提取需求、整理基本信息、生成摘要、判断意向、沉淀档案</td><td class="mut">需求不再散落，沟通更有针对性</td></tr>
+      <tr><td class="k">销售线索识别</td><td>「我们公司大概 50 人，想了解一下方案，最好下周能安排演示。」</td><td>识别商机、提取规模/需求/时间、判断意向等级、生成跟进摘要与内部待办</td><td class="mut">商机不埋没，销售快速掌握背景</td></tr>
+      <tr><td class="k">跟进状态分析</td><td>「我先内部讨论一下，月底之前给你答复。」</td><td>识别状态、提取时间节点、形成待跟进事项、记录顾虑、长期无进展提示</td><td class="mut">员工少忘事，跟进有节奏</td></tr>
+      <tr><td class="k">聊天 → 客户档案</td><td>（长期沟通中自然包含需求、预算、偏好、承诺、异议）</td><td>自动提取关键内容、更新客户标签、保存承诺、形成可搜索档案</td><td class="mut">新员工快速接手，企业掌握全貌</td></tr>
+      <tr><td class="k">AI 员工助手</td><td>「这个客户之前谈到什么阶段了？」「帮我整理今天要关注的客户。」</td><td>查询历史、提供业务知识、生成摘要、汇总每日工作</td><td class="mut">普通员工也有「业务助理」</td></tr>
+    </table>
+    <p class="lead" style="margin-top:6px">以上场景均遵循同一原则：<b>AI 负责理解和整理，重要动作由人确认后执行。</b></p>
+  </div>
+
+  <div class="chapter">
+    <div class="ch-head"><span class="ch-no">04</span><div class="ch-rule"></div></div>
+    <h2 class="action">老板视角的五个价值</h2>
+    <div class="tri">
+      <div class="cell"><em>价值一</em><b>少丢客户信息</b><p>「不是让员工更忙，而是让已经到手的客户机会和信息不要白白流失。」</p></div>
+      <div class="cell"><em>价值二</em><b>少做重复劳动</b><p>「把员工从翻记录、做表格、重复整理中解放出来。」</p></div>
+      <div class="cell"><em>价值三</em><b>少依赖个人记忆</b><p>「重要事情不再只存在某个人的脑子里。」</p></div>
+    </div>
+    <div class="tri">
+      <div class="cell"><em>价值四</em><b>业务更透明</b><p>「不用每天追着员工问，系统直接告诉你业务发生了什么。」</p></div>
+      <div class="cell"><em>价值五</em><b>客户资产能积累</b><p>「员工在服务客户的同时，也是在为企业积累客户资产。」</p></div>
+      <div class="cell"><em>延伸</em><b>经营数据分析</b><p>客户从哪里来、什么需求在增长、哪个环节易流失——从凭经验经营走向用数据理解客户。</p></div>
+    </div>
+  </div>
+
+  <div class="chapter">
+    <div class="ch-head"><span class="ch-no">05</span><div class="ch-rule"></div></div>
+    <h2 class="action">售前沟通的六个方向</h2>
+    <table>
+      <thead><tr><th style="width:110px">方向</th><th>话术要点</th></tr></thead>
+      <tr><td class="k">效率型</td><td>「我们不是做自动回复工具，而是帮企业把大量聊天信息自动整理出来，让员工少翻记录、少做重复工作。」</td></tr>
+      <tr><td class="k">增长型</td><td>「每天都有客户咨询，但真正被完整记录、持续分析的并不多。我们帮您把客户意向和业务状态识别出来。」</td></tr>
+      <tr><td class="k">管理型</td><td>「老板不需要看完所有聊天记录，也能知道客户从哪来、在什么阶段、哪些问题反复出现。」</td></tr>
+      <tr><td class="k">资产型</td><td>「客户关系不能只掌握在员工个人聊天记录里。重要沟通、需求、承诺沉淀下来，客户资产真正属于企业。」</td></tr>
+      <tr><td class="k">AI 升级型</td><td>「AI 的价值不是替企业随便回几句话，而是把聊天中的需求、意向、任务提取出来，真正参与日常经营。」</td></tr>
+      <tr><td class="k">数据型</td><td>「没有整理和分析，客户消息就只是聊天记录。我们帮企业把消息变成客户数据，把数据变成经营判断。」</td></tr>
+    </table>
+    <h2 class="action" style="margin-top:26px;font-size:19px">不同规模客户，分别怎么讲</h2>
+    <table>
+      <thead><tr><th style="width:150px">客户规模</th><th>最关心</th><th>推荐切入</th></tr></thead>
+      <tr><td class="k">个体商户 / 工作室</td><td>信息遗漏、时间成本、一人管多客户</td><td>「不用马上招客服，先让 AI 帮您整理客户、提取需求——一个人也能有条理地经营更多客户。」</td></tr>
+      <tr><td class="k">小微企业</td><td>员工效率、信息沉淀、老板管理、客户交接</td><td>「小企业最怕客户来了信息散、员工忙不过来、人一走客户就断。我们把这些变成可管理、可查询的业务记录。」</td></tr>
+      <tr><td class="k">中型企业</td><td>多团队协作、数据沉淀、服务标准化</td><td>「当企业依赖多个销售、客服团队时，聊天不能只停留在个人手机里——信息要能流动、协作和分析。」</td></tr>
+      <tr><td class="k">连锁 / 多分支</td><td>服务标准、数据归集、总部管理</td><td>「门店各自接待，但客户信息、服务标准和经营数据应该回到企业整体——让分散的沟通变成可管理的经营网络。」</td></tr>
+    </table>
+  </div>
+
+  <div class="chapter">
+    <div class="ch-head"><span class="ch-no">06</span><div class="ch-rule"></div></div>
+    <h2 class="action">产品边界：重点做什么，谨慎做什么</h2>
+    <div class="duo">
+      <div class="col do">
+        <h4>重点能力</h4>
+        <ul>
+          <li>接收已有消息与业务信息</li>
+          <li>识别客户需求、意向和问题类型</li>
+          <li>自动整理聊天摘要</li>
+          <li>提取客户资料、业务节点和重要承诺</li>
+          <li>形成客户档案与业务记录</li>
+          <li>分析客户来源、阶段和流失原因</li>
+          <li>生成待办清单和内部提醒</li>
+          <li>辅助员工查询、准备回复、判断下一步</li>
+          <li>支持人工确认、人工处理和人工接管</li>
+        </ul>
+      </div>
+      <div class="col dont">
+        <h4>谨慎处理的能力</h4>
+        <ul>
+          <li>个人微信自动发送</li>
+          <li>批量群发消息</li>
+          <li>自动加好友</li>
+          <li>自动营销触达 / 大规模自动私聊</li>
+          <li>自动操作朋友圈</li>
+          <li>未经人工确认的对外承诺</li>
+          <li>依赖非官方协议长期运行的自动发送</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note"><b>对外沟通底线：</b>不把个人微信自动发送作为核心卖点；不宣传批量群发、自动加好友；不承诺绕过平台限制；不承诺任何个人账号长期稳定运行；不承诺 AI 替代所有客服；不承诺客户一定成交或业绩必然增长。对外内容以人工确认和企业授权为原则。</div>
+  </div>
+
+  <div class="chapter">
+    <div class="ch-head"><span class="ch-no">07</span><div class="ch-rule"></div></div>
+    <h2 class="action">常见异议与应对</h2>
+    <table>
+      <thead><tr><th style="width:230px">客户说</th><th>怎么答</th></tr></thead>
+      <tr><td class="k">「这不就是个微信机器人？」</td><td>机器人是替您发消息，我们是帮您理解消息。发消息解决的是「手」的问题；我们解决的是「脑」的问题——客户是谁、要什么、到哪一步了、下一步该干什么。</td></tr>
+      <tr><td class="k">「员工会不会抵触？」</td><td>定位是帮员工减负：翻记录、做表格、抄需求这些活交给 AI；报告和待办让员工的业绩更容易被看见。员工的沟通习惯不用改，系统在后台工作。</td></tr>
+      <tr><td class="k">「我们的业务聊天很乱，AI 能看懂吗？」</td><td>恰恰是乱的聊天最需要整理。AI 先做识别与归类，不确定的内容标记出来由人确认——乱的输入，结构化的输出。</td></tr>
+      <tr><td class="k">「数据放上面安全吗？」</td><td>客户数据隔离、权限分级、留存策略可配置；数据归属企业，合作终止可完整导出。方案确认前，数据边界与保密条款白纸黑字。</td></tr>
+    </table>
+  </div>
+
+  <div class="final">
+    <div class="fk">POSITIONING STATEMENT</div>
+    <h3>让每一条客户消息，<br>都变成企业<em>可以理解和经营的业务资产</em>。</h3>
+    <div class="tri3">
+      <div><span>VALUE 01</span>客户信息，有整理</div>
+      <div><span>VALUE 02</span>业务状态，看得见</div>
+      <div><span>VALUE 03</span>客户资产，沉淀下来</div>
+    </div>
+    <p class="fin-note">AI 不只是替您处理文字，更是帮您理解客户、整理业务、发现问题、辅助决策的智能助手。从「帮企业自动发消息」，升级为「帮企业理解消息、沉淀客户、分析业务、辅助经营」——这不仅更稳妥，也更容易形成真正有长期价值的产品。</p>
+  </div>
+
+</div>
+
+<footer><div class="f-in">* 本文件为产品能力与客户场景说明，具体功能与交付范围以双方确认的《服务确认函》为准。<span class="ph" style="border-color:#5A7488;color:#C6D5DF">【服务方名称】</span> · 消息自动化与 AI 客户经营 · 客户场景说明</div></footer>
+
+</body>
+</html>

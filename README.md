@@ -68,6 +68,7 @@ GeoCore/
 | `售前聊作战包/` | 售前聊 PDF 产线：design-demos/consulting-report.html + `售前聊与预诊断作战包.pdf`（5 页，judge 验收通过）+ scripts/export_pdf.js；豁免记录 direction-approved.md |
 | `客户宣传手册/` | 对外宣传册 PDF 产线：design-demos/consulting-report.html + `客户宣传手册-团队与业务介绍.pdf`（5 页）+ scripts/export_pdf.js；direction-approved.md |
 | `GEO服务说明-客户版/` | GEO 单品客户版 PDF 产线：design-demos/consulting-report.html + `GEO服务说明-客户版.pdf`（4 页，judge 4/4 通过）；与《客户宣传手册》分工：手册=双线总览，本册=GEO 单品深版 |
+| `消息自动化场景说明/` | 消息自动化与 AI 客户经营 PDF 产线：design-demos/consulting-report.html + `消息自动化与AI客户经营-客户场景说明.pdf`（7 页，逐页图像分析 7/7 通过；客户说明+售前弹药双受众）；direction-approved.md（单版直出豁免） |
 
 ### 99-归档/
 | 文件 | 说明 |
