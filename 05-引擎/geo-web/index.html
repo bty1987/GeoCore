@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GEO检测分析智能体</title>
+<!-- ============================================================
+  GEO检测分析智能体 · 落地页 v1（复刻自同类产品页版式）
+  需替换的占位：
+    1. 品牌名：搜「BRAND」三处（侧边栏 / 主标题 / 页面title）
+    2. slogan：主标题下方一句话
+    3. 示例报告行：tbody 内两行，演示用，上线前删除或换真实数据
+  ============================================================ -->
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    background: #F7F8FA;
+    color: #1F2329;
+    display: flex;
+    min-height: 100vh;
+  }
+  a { text-decoration: none; }
+  ul { list-style: none; }
+
+  /* ---------------- 左侧导航 ---------------- */
+  .sidebar {
+    width: 256px;
+    background: #FFFFFF;
+    border-right: 1px solid #EBEEF5;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    transition: width .2s ease;
+    overflow: hidden;
+  }
+  .side-top {
+    display: flex;
+    align-items: center;
+    height: 64px;
+    padding: 0 20px;
+    flex-shrink: 0;
+  }
+  .brand-logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #36CFC9 0%, #3B7BFF 60%, #7C5CFF 100%);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .brand-name {          /* 【品牌名】占位：BRAND(1/3) */
+    margin-left: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .side-collapse {
+    margin-left: auto;
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    color: #6B7280;
+    cursor: pointer;
+    border: none; background: none;
+    flex-shrink: 0;
+  }
+  .side-collapse:hover { color: #3B7BFF; }
+
+  .nav { padding: 8px 12px; }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    height: 48px;
+    padding: 0 12px;
+    border-radius: 6px;
+    color: #1F2329;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .nav-item svg { flex-shrink: 0; }
+  .nav-item span { margin-left: 10px; }
+  .nav-item:hover { background: #F0F3F8; }
+  .nav-item.active { background: #E8F0FF; color: #3B7BFF; font-weight: 500; }
+  .nav-item.history { color: #6B7280; }
+  .side-sep { height: 1px; background: #EBEEF5; margin: 12px 12px; }
+
+  .side-bottom {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    height: 56px;
+    padding: 0 20px;
+    border-top: 1px solid #EBEEF5;
+  }
+  .side-bottom .brand-name { font-size: 14px; font-weight: 500; }
+
+  /* 折叠态 */
+  body.collapsed .sidebar { width: 64px; }
+  body.collapsed .brand-name,
+  body.collapsed .nav-item span { display: none; }
+  body.collapsed .side-top,
+  body.collapsed .side-bottom { justify-content: center; padding: 0; }
+  body.collapsed .side-collapse { display: none; }
+  body.collapsed .brand-logo { margin: 0; }
+  body.collapsed .nav-item { justify-content: center; padding: 0; }
+
+  /* ---------------- 主区 ---------------- */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 64px 24px 96px;
+    min-width: 0;
+  }
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .hero-logo {
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #667EEA 0%, #5A6CF0 50%, #764BA2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(90, 108, 240, .25);
+  }
+  .hero-title {        /* 【品牌名】占位：BRAND(2/3) */
+    margin-top: 24px;
+    font-size: 28px;
+    font-weight: 600;
+    color: #3B7BFF;
+    letter-spacing: .5px;
+  }
+  .hero-sub {
+    margin-top: 12px;
+    font-size: 15px;
+    color: #6B7280;   /* 【slogan】占位：换成自己的一句话 */
+  }
+  .hero-btn {
+    margin-top: 32px;
+    width: 112px;
+    height: 40px;
+    border: none;
+    border-radius: 4px;
+    background: #3B7BFF;
+    color: #FFFFFF;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background .15s ease, box-shadow .15s ease;
+  }
+  .hero-btn:hover { background: #2E6AE5; box-shadow: 0 4px 12px rgba(59, 123, 255, .35); }
+
+  /* ---------------- 共享报告表格 ---------------- */
+  .report-table-wrap {
+    width: 660px;
+    max-width: 100%;
+    margin-top: 48px;
+  }
+  .report-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #FFFFFF;
+    border: 1px solid #EBEEF5;
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 14px;
+  }
+  .report-table th {
+    background: #E8EEF7;
+    color: #6B7280;
+    font-weight: 400;
+    font-size: 13px;
+    text-align: left;
+    padding: 10px 16px;
+  }
+  .report-table td {
+    padding: 14px 16px;
+    border-top: 1px solid #EBEEF5;
+  }
+  .report-table tbody tr { transition: background .12s ease; }
+  .report-table tbody tr:hover { background: #F7FAFF; }
+  .t-time  { color: #6B7280; width: 180px; }
+  .t-name  { color: #3B7BFF; font-weight: 500; }
+  .t-view  { width: 64px; }
+  .t-view a { color: #3B7BFF; }
+  .t-view a:hover { text-decoration: underline; }
+
+  /* ---------------- 右下角悬浮客服 ---------------- */
+  .fab {
+    position: fixed;
+    right: 48px;
+    bottom: 32px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #3B7BFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(59, 123, 255, .4);
+    cursor: pointer;
+    transition: transform .15s ease, background .15s ease;
+  }
+  .fab:hover { background: #2E6AE5; transform: translateY(-2px); }
+</style>
+</head>
+<body>
+
+  <!-- 左侧导航 -->
+  <aside class="sidebar">
+    <div class="side-top">
+      <div class="brand-logo">G</div>
+      <div class="brand-name">GeoCore</div>
+      <button class="side-collapse" title="收起导航" onclick="document.body.classList.toggle('collapsed')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
+      </button>
+    </div>
+
+    <ul class="nav">
+      <li class="nav-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        <span>创建新分析</span>
+      </li>
+      <li class="nav-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span>报告库</span>
+      </li>
+      <li class="nav-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
+        <span>服务中心</span>
+      </li>
+    </ul>
+
+    <ul class="nav">
+      <li class="nav-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+        <span>GEO优化系统</span>
+      </li>
+    </ul>
+
+    <ul class="nav">
+      <li class="nav-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>会员中心</span>
+      </li>
+    </ul>
+
+    <div class="side-sep"></div>
+
+    <ul class="nav">
+      <li class="nav-item history">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>历史记录</span>
+      </li>
+    </ul>
+
+    <div class="side-bottom">
+      <div class="brand-logo">G</div>
+      <div class="brand-name">GeoCore</div>  <!-- 【品牌名】占位：BRAND(3/3) -->
+    </div>
+  </aside>
+
+  <!-- 主区 -->
+  <main class="main">
+    <div class="hero">
+      <div class="hero-logo" title="品牌LOGO占位：替换为自己的logo图片或SVG">
+        <svg width="52" height="52" viewBox="0 0 48 48" fill="none">
+          <path d="M24 6 38 38H10Z" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="24" cy="28" r="4" fill="#FFFFFF"/>
+        </svg>
+      </div>
+      <h1 class="hero-title">GeoCore GEO检测分析智能体</h1>
+      <p class="hero-sub">让品牌在每一个AI回答里被看见、被推荐</p>
+      <button class="hero-btn" onclick="alert('接入创建新分析流程')">进入系统</button>
+    </div>
+
+    <div class="report-table-wrap">
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th class="t-time">共享报告</th>
+            <th>报告名称</th>
+            <th>产品说明</th>
+            <th class="t-view">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 示例数据：演示用，上线前替换或删除（勿虚构为客户案例） -->
+          <tr>
+            <td class="t-time">2026-09-14 10:07:12</td>
+            <td class="t-name">《品牌A AI可见度分析报告》</td>
+            <td>示例行业-产品类目</td>
+            <td class="t-view"><a href="#">查看</a></td>
+          </tr>
+          <tr>
+            <td class="t-time">2026-09-14 10:02:57</td>
+            <td class="t-name">《品牌B AI可见度分析报告》</td>
+            <td>示例行业-产品类目</td>
+            <td class="t-view"><a href="#">查看</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- 悬浮客服 -->
+  <div class="fab" title="联系客服">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
+  </div>
+
+</body>
+</html>
