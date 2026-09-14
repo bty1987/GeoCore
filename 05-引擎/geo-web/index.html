@@ -288,6 +288,20 @@
   .kv-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0; }
   .kv-table td { border: 1px solid #EBEEF5; padding: 8px 14px; }
   .kv-table td.k { background: #F7F9FC; color: #6B7280; width: 120px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin: 6px 0; font-size: 12px; }
+  .bar-row .bl { width: 110px; color: #4E5561; text-align: right; flex-shrink: 0; }
+  .bar-row .bt { flex: 1; height: 14px; background: #EEF1F6; border-radius: 7px; overflow: hidden; }
+  .bar-row .bf { height: 100%; background: linear-gradient(90deg, #3B7BFF, #6C9EFF); border-radius: 7px; }
+  .bar-row .bv { width: 44px; color: #1E3A6E; font-weight: 600; flex-shrink: 0; }
+  .opt-list { margin: 0; padding-left: 0; list-style: none; }
+  .opt-list li { font-size: 13px; color: #4E5561; padding: 7px 0 7px 26px; position: relative; border-bottom: 1px dashed #EBEEF5; }
+  .opt-list li::before { content: "⚠"; position: absolute; left: 4px; color: #F5941E; }
+  .opt-list li b { color: #1F2329; }
+  .src-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .src-chip { font-size: 12px; padding: 4px 12px; border-radius: 4px; background: #F0F6FF; color: #2E6AE5; }
+  .chat-demo { border: 1px solid #EBEEF5; border-radius: 6px; padding: 12px 16px; font-size: 13px; line-height: 1.8; color: #4E5561; background: #FAFBFD; }
+  .chat-demo .u { color: #1E3A6E; font-weight: 600; }
+  .chat-demo .a { margin-top: 6px; }
   .doc-actions { display: flex; gap: 10px; justify-content: flex-end; margin-bottom: 10px; width: 860px; max-width: 100%; }
 
   /* ---------------- 报告库卡片 / 历史分组 ---------------- */
@@ -531,6 +545,10 @@ function renderCreate() {
         <div class="err">请填写产品核心词</div>
       </div>
       <div class="form-item">
+        <label>主要竞品<span class="tip">选填，多个用顿号分隔，用于对比可见度差距</span></label>
+        <input type="text" id="f-competitors" placeholder="例如：竞品A、竞品B" maxlength="60">
+      </div>
+      <div class="form-item">
         <label>品牌描述<span class="tip">选填，不少于20字</span><span class="char-count"><span id="cc-desc">0</span> / 500</span></label>
         <textarea id="f-desc" placeholder="尽量描述全面，可粘贴企业简介或产品简介（演示版不参与生成逻辑）" maxlength="500"></textarea>
       </div>
@@ -572,6 +590,7 @@ function startExtract() {
   const report = {
     id: 'r' + Date.now(), brand, category,
     desc: document.getElementById('f-desc').value.trim(),
+    competitors: document.getElementById('f-competitors').value.trim(),
     region: document.getElementById('f-region').value,
     questions: null, models: [],
     createdAt: fmtTime(new Date()), status: 'todo', cost: 0,
@@ -816,6 +835,23 @@ function renderReport(r) {
     dec: '决策期问法离转化最近：补齐价格区间说明、试用政策、实施流程与本地案例，减少用户临门一脚时的不确定感。',
   };
 
+  // 分阶段可见度统计（演示口径）
+  const phaseStat = key => {
+    const qs = r.questions[key];
+    const cells = qs.flatMap(q => r.models.map(m => hash(q.text + '|' + m) % 10));
+    const hit = cells.filter(h => h < 7).length;
+    const rec = cells.filter(h => h < 2).length;
+    return { total: cells.length, hit, rec, rate: cells.length ? Math.round(hit / cells.length * 100) : 0 };
+  };
+
+  // 需优化提问词：该阶段内任一模型未达「推荐提及」的问法，按热度降序
+  const optList = key => r.questions[key]
+    .filter(q => r.models.some(m => hash(q.text + '|' + m) % 10 >= 2))
+    .sort((a, b) => b.heat - a.heat)
+    .map(q => `<li><b>${q.text}</b>（热度 ${q.heat}）</li>`).join('');
+
+  const REF_SOURCES = ['官网品牌页', '知乎机构号', '公众号文章', '行业媒体报道', '百度百科', '客户案例页', '36氪/虎嗅', '本地生活平台'];
+
   main.innerHTML = `
     <div class="doc-actions">
       <button class="btn-plain" onclick="toast('切换模板：接入报告模板产线后可用')">切换模板</button>
@@ -849,6 +885,22 @@ function renderReport(r) {
         ${['品牌可见度', '品牌提及率', '回答排序', '竞品对比', '竞品排序', '情感倾向', '引用来源', '关联引用源', '模型共用引用源', '优化方向建议'].map(d => `<span class="dim-chip">${d}</span>`).join('')}
       </div>
 
+      <h3>品牌可见度数据分析</h3>
+      ${Object.keys(PHASES).map(k => {
+        const s = phaseStat(k);
+        return `<div class="bar-row"><span class="bl">${PHASES[k].name}</span>
+          <span class="bt"><span class="bf" style="width:${s.rate}%"></span></span>
+          <span class="bv">${s.rate}%</span></div>`;
+      }).join('')}
+      ${r.competitors ? `
+      <h3>品牌与竞品提及率对比（演示）</h3>
+      ${[r.brand, ...r.competitors.split(/[、,，\s]+/).filter(Boolean)].map((b, i) => {
+        const rate = i === 0 ? score : Math.max(5, (score - 18 * i + hash(b) % 10) > 0 ? (score - 18 * i + hash(b) % 10) : 5);
+        return `<div class="bar-row"><span class="bl">${b}</span>
+          <span class="bt"><span class="bf" style="width:${rate}%;${i === 0 ? '' : 'background:linear-gradient(90deg,#C0C6CF,#98A1B0)'}"></span></span>
+          <span class="bv">${rate}%</span></div>`;
+      }).join('')}` : ''}
+
       <h2>企业基本信息</h2>
       <table class="kv-table">
         <tr><td class="k">品牌名称</td><td>${r.brand}</td><td class="k">产品核心词</td><td>${r.category}</td></tr>
@@ -859,10 +911,26 @@ function renderReport(r) {
 
       <h2>可见度总览</h2>
       <p>本次共 ${total} 次回答中，品牌被提及、推荐或作为引用来源出现 <b>${hitCount}</b> 次（${score}%），未出现 <b>${missCount}</b> 次。以下按三阶段呈现逐条结果：</p>
-      ${Object.keys(PHASES).map(phaseMatrix).join('')}
+      ${Object.keys(PHASES).map(k => `
+        ${phaseMatrix(k)}
+        <h3>汇总需优化的提问词（${PHASES[k].name}）</h3>
+        ${optList(k) ? `<ul class="opt-list">${optList(k)}</ul>` : '<p>本阶段全部问法均达到「推荐提及」，无需优化。</p>'}
+        <h3>模型共用引用平台</h3>
+        <div class="src-chips">${REF_SOURCES.slice(0, 4 + hash(k) % 4).map(s => `<span class="src-chip">${s}</span>`).join('')}</div>
+        <p style="font-size:12px;color:#98A1B0">（演示占位：接入引擎后展示各模型实际引用来源的统计与重叠情况）</p>
+      `).join('')}
 
       <h2>分阶段总结与执行建议</h2>
       ${Object.keys(PHASES).map(k => `<h3>${PHASES[k].name}</h3><p>${phaseAdvice[k]}</p>`).join('')}
+
+      <h2>大模型对话摘录</h2>
+      <div class="chat-demo">
+        <div class="u">问：${r.questions.dec[0] ? r.questions.dec[0].text : ''}</div>
+        <div class="a">答：（演示占位）接入 geo-engine-v0 后，此处展示各模型对每条提问的完整回答原文，并标注品牌出现位置与引用来源。</div>
+      </div>
+
+      <h2>问答截图</h2>
+      <p>（演示占位）真实报告在此附上每次对话的截图存证，便于品牌方逐条核验。</p>
 
       <h2>下一步</h2>
       <p>1. 演示数据仅用于验证报告结构，真实数据由 geo-engine-v0 监测引擎生成（40 词 × 多平台自动采集）。<br>
