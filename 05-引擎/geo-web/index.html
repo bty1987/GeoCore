@@ -892,6 +892,9 @@ function renderReport(r) {
           <span class="bt"><span class="bf" style="width:${s.rate}%"></span></span>
           <span class="bv">${s.rate}%</span></div>`;
       }).join('')}
+      <div class="decl" style="margin-top:10px">
+        <b>解读（演示）：</b>目标品牌「${r.brand}」综合可见度 ${score}%。真实报告在此由 AI 生成客观解读：对照头部竞品量化差距、指出未进入推荐视野的问法场景、给出优先补内容的方向。接入引擎后此处为真实结论。
+      </div>
       ${r.competitors ? `
       <h3>品牌与竞品提及率对比（演示）</h3>
       ${[r.brand, ...r.competitors.split(/[、,，\s]+/).filter(Boolean)].map((b, i) => {
