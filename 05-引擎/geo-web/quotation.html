@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GEO 大模型搜索优化 · 在线询价</title>
+<script src="quotation-config.js"></script>
+<style>
+  :root{
+    --bg:#F7F8FA; --ink:#1F2329; --ink2:#5B6472; --line:#EBEEF5;
+    --pri:#3B7BFF; --pri-d:#2E6AE5; --pri-bg:#E8F0FF; --hov:#F0F3F8;
+    --grad:linear-gradient(135deg,#36CFC9 0%,#3B7BFF 60%,#7C5CFF 100%);
+    --strike:#9AA3B0; --save:#0FAE84;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+    background:var(--bg); color:var(--ink); padding-bottom:96px;
+  }
+  /* ---- 头部 ---- */
+  .top{
+    background:var(--grad); color:#FFF; padding:26px 20px 22px;
+  }
+  .top .brand{ font-size:20px; font-weight:600; letter-spacing:.5px; }
+  .top .sub{ font-size:13px; opacity:.92; margin-top:6px; }
+  .top .tags{ margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; }
+  .top .tag{
+    font-size:11px; padding:3px 9px; border-radius:999px;
+    background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35);
+  }
+  /* ---- 主体 ---- */
+  main{ padding:14px 14px 0; max-width:520px; margin:0 auto; }
+  .card{
+    background:#FFF; border:1px solid var(--line); border-radius:14px;
+    padding:16px 14px; margin-bottom:12px;
+  }
+  .card h2{ font-size:15px; margin-bottom:3px; }
+  .card .hint{ font-size:12px; color:var(--ink2); margin-bottom:12px; }
+  /* 方案卡 */
+  .plan{
+    display:flex; align-items:flex-start; gap:10px;
+    border:1.5px solid var(--line); border-radius:12px;
+    padding:13px 12px; cursor:pointer; margin-bottom:10px;
+    transition:border-color .15s, background .15s;
+  }
+  .plan:last-of-type{ margin-bottom:0; }
+  .plan:active{ background:var(--hov); }
+  .plan.on{ border-color:var(--pri); background:var(--pri-bg); }
+  .plan .radio{
+    width:18px; height:18px; border-radius:50%; flex:none; margin-top:2px;
+    border:1.5px solid #C4CCD6; background:#FFF;
+  }
+  .plan.on .radio{ border-color:var(--pri); }
+  .plan.on .radio::after{
+    content:''; display:block; width:10px; height:10px; margin:2.5px;
+    border-radius:50%; background:var(--pri);
+  }
+  .plan .p-body{ flex:1; min-width:0; }
+  .plan .p-name{ font-size:14.5px; font-weight:600; }
+  .plan .p-desc{ font-size:12px; color:var(--ink2); margin-top:4px; line-height:1.55; }
+  .plan .p-price{ flex:none; margin-left:auto; text-align:right; align-self:flex-start; }
+  .plan .p-price b{ font-size:17px; color:var(--pri); }
+  .plan .p-price span{ font-size:11px; color:var(--ink2); }
+  /* 平台 chips */
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{
+    font-size:13px; padding:8px 14px; border-radius:999px;
+    border:1.5px solid var(--line); background:#FFF; color:var(--ink);
+    cursor:pointer; user-select:none; transition:all .15s;
+  }
+  .chip.on{ border-color:var(--pri); background:var(--pri-bg); color:var(--pri); font-weight:600; }
+  .chip.lock{ border-color:var(--pri); background:var(--pri-bg); color:var(--pri); font-weight:600; opacity:.85; cursor:default; }
+  .chip small{ font-size:10.5px; color:var(--ink2); font-weight:400; margin-left:3px; }
+  /* 周期 */
+  .seg{ display:flex; gap:10px; }
+  .seg .opt{
+    flex:1; text-align:center; border:1.5px solid var(--line); border-radius:12px;
+    padding:12px 6px; cursor:pointer; transition:all .15s; position:relative;
+  }
+  .seg .opt.on{ border-color:var(--pri); background:var(--pri-bg); }
+  .seg .opt b{ font-size:14.5px; display:block; }
+  .seg .opt span{ font-size:11px; color:var(--ink2); display:block; margin-top:3px; }
+  .seg .opt.on span{ color:var(--save); }
+  /* 表单 */
+  .fields{ display:flex; flex-direction:column; gap:10px; }
+  .fields label{ font-size:12px; color:var(--ink2); display:block; margin-bottom:5px; }
+  .fields select,.fields input{
+    width:100%; font-size:14px; padding:11px 12px; color:var(--ink);
+    border:1.5px solid var(--line); border-radius:10px; background:#FFF; outline:none;
+    appearance:none; -webkit-appearance:none; font-family:inherit;
+  }
+  .fields select:focus,.fields input:focus{ border-color:var(--pri); }
+  .sel-wrap{ position:relative; }
+  .sel-wrap::after{
+    content:''; position:absolute; right:14px; top:50%; width:8px; height:8px;
+    border-right:1.5px solid #9AA3B0; border-bottom:1.5px solid #9AA3B0;
+    transform:translateY(-70%) rotate(45deg); pointer-events:none;
+  }
+  /* 结果卡 */
+  .result{ border:1.5px solid var(--pri); box-shadow:0 6px 18px rgba(59,123,255,.10); }
+  .result .ref{ font-size:12px; color:var(--strike); }
+  .result .ref s{ margin-left:2px; }
+  .result .price{ font-size:30px; font-weight:700; color:var(--pri); margin:6px 0 2px; }
+  .result .price small{ font-size:13px; font-weight:400; color:var(--ink2); }
+  .result .save{ display:inline-block; font-size:11px; color:var(--save); background:#E7F7F1; border-radius:999px; padding:2px 8px; margin-left:6px; }
+  .detail{ margin-top:12px; border-top:1px dashed var(--line); padding-top:12px; }
+  .detail .row{ display:flex; justify-content:space-between; font-size:12.5px; padding:4px 0; }
+  .detail .row .k{ color:var(--ink2); flex:none; margin-right:12px; }
+  .detail .row .v{ text-align:right; }
+  .notes{ margin-top:10px; font-size:11px; color:var(--ink2); line-height:1.7; }
+  .cta{ display:flex; gap:10px; margin-top:14px; }
+  .btn{
+    flex:1; text-align:center; font-size:14px; font-weight:600; border-radius:10px;
+    padding:12px 8px; cursor:pointer; border:none; font-family:inherit;
+  }
+  .btn-pri{ background:var(--pri); color:#FFF; }
+  .btn-pri:hover{ background:var(--pri-d); }
+  .btn-sec{ background:var(--pri-bg); color:var(--pri); }
+  /* 吸底栏 */
+  .bar{
+    position:fixed; left:0; right:0; bottom:0; z-index:50;
+    background:#FFF; border-top:1px solid var(--line);
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+    display:flex; align-items:center; gap:12px; max-width:520px; margin:0 auto;
+  }
+  .bar .bp{ flex:1; line-height:1.25; }
+  .bar .bp b{ font-size:19px; color:var(--pri); }
+  .bar .bp span{ display:block; font-size:10.5px; color:var(--strike); }
+  .bar .btn{ flex:none; padding:11px 22px; }
+  footer{ max-width:520px; margin:0 auto; padding:14px 16px 10px; font-size:10.5px; color:var(--strike); line-height:1.7; text-align:center; }
+  @media (min-width:521px){ body{ padding-top:0; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand" id="brandName"></div>
+  <div class="sub" id="brandSub"></div>
+  <div class="tags">
+    <span class="tag">豆包等主流 AI 平台</span>
+    <span class="tag">诊断报告先行</span>
+    <span class="tag">基线-复测 数据对比</span>
+  </div>
+</header>
+
+<main>
+  <!-- ① 选方案 -->
+  <section class="card">
+    <h2>① 选择服务方案</h2>
+    <div class="hint">均含 AI 可见度诊断报告，先用数据看到自己在新流量入口的真实位置</div>
+    <div id="planList"></div>
+  </section>
+
+  <!-- ② 选平台 -->
+  <section class="card" id="cardPlat">
+    <h2>② 选择优化平台</h2>
+    <div class="hint">豆包为基础平台，可增加其他平台扩大覆盖面</div>
+    <div class="chips" id="platChips"></div>
+  </section>
+
+  <!-- ③ 选周期 -->
+  <section class="card" id="cardCycle">
+    <h2>③ 选择服务周期</h2>
+    <div class="hint">优化动作按月推进，季付更划算</div>
+    <div class="seg" id="cycleSeg"></div>
+  </section>
+
+  <!-- ④ 基本信息 -->
+  <section class="card">
+    <h2>④ 基本信息 <span style="font-weight:400;font-size:11px;color:var(--ink2)">（选填）</span></h2>
+    <div class="hint">帮顾问提前匹配行业方案</div>
+    <div class="fields">
+      <div>
+        <label for="ind">所属行业</label>
+        <div class="sel-wrap"><select id="ind"></select></div>
+      </div>
+      <div>
+        <label for="city">主要城市</label>
+        <input id="city" list="cityList" placeholder="如：大连" inputmode="text">
+        <datalist id="cityList"></datalist>
+      </div>
+    </div>
+  </section>
+
+  <!-- 报价结果 -->
+  <section class="card result" id="resultCard">
+    <div class="ref" id="rRef"></div>
+    <div class="price" id="rPrice"></div>
+    <div class="detail" id="rDetail"></div>
+    <div class="notes">
+      · 诊断报告签约后全额抵扣服务费<br>
+      · 优化效果以「基线 — 复测」同题数据对比为准，每一分变化看得见<br>
+      · 本页为标准报价，最终方案以服务确认单为准
+    </div>
+    <div class="cta">
+      <button class="btn btn-pri" id="btnCopyLink" data-t="复制询价信息">复制询价信息</button>
+      <button class="btn btn-sec" id="btnContact"></button>
+    </div>
+  </section>
+</main>
+
+<div class="bar">
+  <div class="bp"><b id="barPrice"></b><span id="barRef"></span></div>
+  <button class="btn btn-pri" id="btnCopyBar" data-t="复制询价">复制询价</button>
+</div>
+
+<footer id="foot"></footer>
+
+<script>
+(function(){
+  const C = window.QUOTE_CONFIG;
+  const fmt = n => '¥' + n.toLocaleString('zh-CN');
+  const state = { plan:'std', platforms:['doubao'], cycle:'m', ind:'', city:'' };
+
+  /* ---------- URL 参数回填（客户把链接发回来，销售即知其配置） ---------- */
+  function parseURL(){
+    const q = new URLSearchParams(location.search);
+    const plan = q.get('plan');
+    if (['std','lite','rpt'].includes(plan)) state.plan = plan;
+    if (q.get('p')){
+      const ps = q.get('p').split(',').filter(id => C.platforms.some(x => x.id === id));
+      if (ps.length){ state.platforms = ps.includes('doubao') ? ps : ['doubao'].concat(ps); }
+    }
+    if (q.get('c') === 'q') state.cycle = 'q';
+    if (q.get('ind')) state.ind = q.get('ind');
+    if (q.get('city')) state.city = q.get('city');
+  }
+
+  /* ---------- 纯算价（测试入口：window.Q.calc） ---------- */
+  function calc(s){
+    const R = C.retail;
+    if (s.plan === 'rpt') return { total:R.report, perLabel:'/份', base:R.report, extra:0, cycle:s.cycle };
+    const base = s.plan === 'std' ? R.std : R.lite;
+    const extra = (s.platforms.length - 1) * R.extraPlatform;
+    const month = base + extra;
+    if (s.cycle === 'q') return { total:month*3 - R.quarterlyOff, perLabel:'/季', base, extra, month, saved:R.quarterlyOff };
+    return { total:month, perLabel:'/月', base, extra, month, saved:0 };
+  }
+
+  const planMeta = {
+    std:{ name:'标准试点包', spec:'2 词根 · 100 组问法', desc:'含 AI 可见度诊断报告 · 1 个月内容优化 · 期末同题复测对比' },
+    lite:{ name:'轻量体验包', spec:'1 词根 · 50 组问法', desc:'同样含诊断报告与复测对比，先小步验证效果' },
+    rpt:{ name:'AI 可见度诊断报告', spec:'单份 · 100 问基线采集', desc:'摸清品牌在 AI 回答中的真实位置，签约后全额抵扣' }
+  };
+
+  /* ---------- 渲染 ---------- */
+  function renderStatic(){
+    document.title = C.brandSub;
+    $('#brandName').textContent = C.brand;
+    $('#brandSub').textContent = C.brandSub;
+    $('#btnContact').textContent = '联系顾问';
+    $('#foot').innerHTML = C.brand + ' · ' + C.contact.wechat + ' · ' + C.contact.phone +
+      '<br>本页仅用于服务询价参考';
+    // 方案
+    $('#planList').innerHTML = ['std','lite','rpt'].map(k => `
+      <div class="plan" data-plan="${k}">
+        <div class="radio"></div>
+        <div class="p-body">
+          <div class="p-name">${planMeta[k].name}<span style="font-weight:400;color:var(--ink2);font-size:11.5px">　${planMeta[k].spec}</span></div>
+          <div class="p-desc">${planMeta[k].desc}</div>
+        </div>
+        <div class="p-price">
+          <b>${fmt(k==='rpt' ? C.retail.report : (k==='std'?C.retail.std:C.retail.lite))}</b>
+          <span>${k==='rpt' ? '/份' : '/月起'}</span>
+        </div>
+      </div>`).join('');
+    // 平台
+    $('#platChips').innerHTML = C.platforms.map(p => `
+      <span class="chip ${p.included?'lock':''}" data-pid="${p.id}">
+        ${p.name}${p.included ? '<small>含</small>' : '<small>+' + fmt(C.retail.extraPlatform) + '/月</small>'}
+      </span>`).join('');
+    // 周期
+    $('#cycleSeg').innerHTML = `
+      <div class="opt" data-c="m"><b>月付</b><span>按月推进</span></div>
+      <div class="opt" data-c="q"><b>季付</b><span>立减 ${fmt(C.retail.quarterlyOff)}</span></div>`;
+    // 行业/城市
+    $('#ind').innerHTML = '<option value="">请选择行业</option>' +
+      C.industries.map(i => `<option>${i}</option>`).join('');
+    $('#cityList').innerHTML = C.cities.map(c => `<option value="${c}">`).join('');
+  }
+
+  function render(){
+    $$('.plan').forEach(el => el.classList.toggle('on', el.dataset.plan === state.plan));
+    $$('#cardPlat, #cardCycle').forEach(el => el.style.display = state.plan === 'rpt' ? 'none' : '');
+    $$('.chip').forEach(el => {
+      const id = el.dataset.pid;
+      el.classList.toggle('on', !el.classList.contains('lock') && state.platforms.includes(id));
+    });
+    $$('.opt').forEach(el => el.classList.toggle('on', el.dataset.c === state.cycle));
+    if (document.activeElement !== $('#city')) $('#city').value = state.city;
+    if ($('#ind').value !== state.ind) $('#ind').value = state.ind;
+
+    const r = calc(state);
+    const ref = C.marketRef[state.plan];
+    const showRef = ref > r.total;
+    $('#rRef').innerHTML = showRef ? `市场参考价 <s>${fmt(ref)} 起</s>` : '';
+    $('#rPrice').innerHTML = fmt(r.total) + `<small> ${r.perLabel}</small>` +
+      (r.saved ? `<span class="save">季付已省 ${fmt(r.saved)}</span>` : '');
+    $('#rDetail').innerHTML = detailRows(r);
+    $('#barPrice').textContent = fmt(r.total) + r.perLabel;
+    $('#barRef').textContent = showRef ? '市场参考价 ' + fmt(ref) + ' 起' : planMeta[state.plan].name;
+  }
+
+  function detailRows(r){
+    const m = planMeta[state.plan];
+    const rows = [['方案', m.name + '（' + m.spec + '）']];
+    if (state.plan !== 'rpt'){
+      const names = C.platforms.filter(p => state.platforms.includes(p.id)).map(p => p.name);
+      rows.push(['优化平台', names.join(' + ')]);
+      rows.push(['服务周期', state.cycle === 'q' ? '季付（3 个月）' : '月付']);
+      if (r.extra) rows.push(['多平台加购', '+' + fmt(r.extra) + '/月']);
+      rows.push(['服务内容', '诊断报告 · 内容优化 · 期末复测对比']);
+    } else {
+      rows.push(['服务内容', '100 问基线采集 · 可见度评估报告']);
+      rows.push(['抵扣说明', '签约后全额抵扣服务费']);
+    }
+    return rows.map(([k,v]) => `<div class="row"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
+  }
+
+  /* ---------- 询价信息复制 ---------- */
+  function buildLink(){
+    const p = new URLSearchParams();
+    p.set('plan', state.plan);
+    if (state.plan !== 'rpt') p.set('p', state.platforms.join(','));
+    if (state.plan !== 'rpt' && state.cycle === 'q') p.set('c', 'q');
+    if (state.ind) p.set('ind', state.ind);
+    if (state.city) p.set('city', state.city);
+    return location.href.split('?')[0] + '?' + p.toString();
+  }
+  function summaryText(){
+    const r = calc(state);
+    const m = planMeta[state.plan];
+    let t = `【${C.brand} · GEO 优化询价】\n方案：${m.name}（${m.spec}）\n`;
+    if (state.plan !== 'rpt'){
+      t += `平台：${C.platforms.filter(p=>state.platforms.includes(p.id)).map(p=>p.name).join(' + ')}\n`;
+      t += `周期：${state.cycle==='q'?'季付':'月付'}\n`;
+    }
+    if (state.ind || state.city) t += `行业/城市：${[state.ind,state.city].filter(Boolean).join(' · ')}\n`;
+    t += `报价：${fmt(r.total)}${r.perLabel}${r.saved?'（已省 '+fmt(r.saved)+'）':''}\n`;
+    t += '询价链接：' + buildLink();
+    return t;
+  }
+  function copyText(t, btn){
+    const done = () => { const o = btn.textContent; btn.textContent = '已复制 ✓'; setTimeout(()=>btn.textContent = o, 1500); };
+    const fb = () => { const ta = document.createElement('textarea'); ta.value = t;
+      ta.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(ta);
+      ta.select(); try{ document.execCommand('copy'); done(); }catch(e){ prompt('请手动复制：', t); } ta.remove(); };
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(t).then(done).catch(fb); else fb();
+  }
+
+  /* ---------- 事件 ---------- */
+  function $(s){ return document.querySelector(s); }
+  function $$(s){ return Array.from(document.querySelectorAll(s)); }
+  function bind(){
+    $('#planList').addEventListener('click', e => {
+      const el = e.target.closest('.plan'); if (!el) return;
+      state.plan = el.dataset.plan; render();
+    });
+    $('#platChips').addEventListener('click', e => {
+      const el = e.target.closest('.chip'); if (!el || el.classList.contains('lock')) return;
+      const id = el.dataset.pid, i = state.platforms.indexOf(id);
+      if (i > -1) state.platforms.splice(i, 1); else state.platforms.push(id);
+      render();
+    });
+    $('#cycleSeg').addEventListener('click', e => {
+      const el = e.target.closest('.opt'); if (!el) return;
+      state.cycle = el.dataset.c; render();
+    });
+    $('#ind').addEventListener('change', e => { state.ind = e.target.value; });
+    $('#city').addEventListener('input', e => { state.city = e.target.value.trim(); });
+    $('#btnCopyLink').addEventListener('click', e => copyText(summaryText(), e.currentTarget));
+    $('#btnCopyBar').addEventListener('click', e => copyText(summaryText(), e.currentTarget));
+    $('#btnContact').addEventListener('click', () => {
+      prompt('请添加顾问微信，或拨打电话：', C.contact.wechat + ' / ' + C.contact.phone);
+    });
+  }
+
+  parseURL();
+  renderStatic();
+  bind();
+  render();
+
+  /* 测试钩子 */
+  window.Q = { state, calc, buildLink, summaryText };
+})();
+</script>
+</body>
+</html>

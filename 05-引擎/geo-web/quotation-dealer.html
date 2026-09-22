@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GEO 服务 · 渠道报价助手</title>
+<script src="quotation-config.js"></script>
+<script src="quotation-dealer.config.js"></script>
+<style>
+  :root{
+    --bg:#F7F8FA; --ink:#1F2329; --ink2:#5B6472; --line:#EBEEF5;
+    --pri:#3B7BFF; --pri-d:#2E6AE5; --pri-bg:#E8F0FF; --hov:#F0F3F8;
+    --grad:linear-gradient(135deg,#36CFC9 0%,#3B7BFF 60%,#7C5CFF 100%);
+    --save:#0FAE84; --warn:#D46B08; --warn-bg:#FFF4E6;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+    background:var(--bg); color:var(--ink); padding-bottom:40px;
+  }
+  /* ---- 口令帘 ---- */
+  #gate{
+    position:fixed; inset:0; z-index:99; background:var(--bg);
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  #gate .box{ background:#FFF; border:1px solid var(--line); border-radius:16px; padding:28px 22px; width:100%; max-width:340px; text-align:center; }
+  #gate .box h1{ font-size:17px; margin-bottom:6px; }
+  #gate .box p{ font-size:12px; color:var(--ink2); margin-bottom:16px; }
+  #gate input{
+    width:100%; font-size:18px; letter-spacing:6px; text-align:center; padding:11px;
+    border:1.5px solid var(--line); border-radius:10px; outline:none; font-family:inherit;
+  }
+  #gate input:focus{ border-color:var(--pri); }
+  #gate .err{ font-size:12px; color:#E5484D; height:18px; margin-top:8px; }
+  #gate button{
+    width:100%; margin-top:6px; padding:12px; font-size:15px; font-weight:600;
+    border:none; border-radius:10px; background:var(--pri); color:#FFF; cursor:pointer; font-family:inherit;
+  }
+  body.locked main, body.locked .top, body.locked footer{ display:none; }
+  /* ---- 头部 ---- */
+  .top{ background:var(--grad); color:#FFF; padding:22px 20px 18px; }
+  .top .row1{ display:flex; align-items:center; justify-content:space-between; }
+  .top .t{ font-size:18px; font-weight:600; }
+  .top .badge{ font-size:10.5px; padding:3px 9px; border-radius:999px; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.4); }
+  .top .s{ font-size:12px; opacity:.9; margin-top:5px; }
+  /* ---- 主体 ---- */
+  main{ padding:14px 14px 0; max-width:520px; margin:0 auto; }
+  .card{ background:#FFF; border:1px solid var(--line); border-radius:14px; padding:16px 14px; margin-bottom:12px; }
+  .card h2{ font-size:15px; margin-bottom:3px; }
+  .card .hint{ font-size:12px; color:var(--ink2); margin-bottom:12px; }
+  .plan,.opt,select,input{ font-family:inherit; }
+  .plan{
+    display:flex; align-items:flex-start; gap:10px; border:1.5px solid var(--line); border-radius:12px;
+    padding:12px; cursor:pointer; margin-bottom:10px; transition:all .15s;
+  }
+  .plan:last-of-type{ margin-bottom:0; }
+  .plan.on{ border-color:var(--pri); background:var(--pri-bg); }
+  .plan .radio{ width:18px; height:18px; border-radius:50%; flex:none; border:1.5px solid #C4CCD6; }
+  .plan.on .radio{ border-color:var(--pri); }
+  .plan.on .radio::after{ content:''; display:block; width:10px; height:10px; margin:2.5px; border-radius:50%; background:var(--pri); }
+  .plan .p-body{ flex:1; min-width:0; }
+  .plan .p-name{ font-size:14.5px; font-weight:600; }
+  .plan .p-desc{ font-size:11.5px; color:var(--ink2); margin-top:3px; }
+  .plan .p-price{ flex:none; margin-left:auto; text-align:right; align-self:flex-start; font-size:15px; font-weight:700; color:var(--pri); }
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{
+    font-size:13px; padding:8px 14px; border-radius:999px; border:1.5px solid var(--line);
+    background:#FFF; cursor:pointer; user-select:none; transition:all .15s;
+  }
+  .chip.on{ border-color:var(--pri); background:var(--pri-bg); color:var(--pri); font-weight:600; }
+  .chip.lock{ border-color:var(--pri); background:var(--pri-bg); color:var(--pri); font-weight:600; opacity:.85; cursor:default; }
+  .chip small{ font-size:10.5px; color:var(--ink2); font-weight:400; margin-left:3px; }
+  .seg{ display:flex; gap:10px; }
+  .seg .opt{ flex:1; text-align:center; border:1.5px solid var(--line); border-radius:12px; padding:11px 6px; cursor:pointer; }
+  .seg .opt.on{ border-color:var(--pri); background:var(--pri-bg); }
+  .seg .opt b{ font-size:14px; display:block; }
+  .seg .opt span{ font-size:11px; color:var(--save); display:block; margin-top:2px; }
+  .sel-wrap{ position:relative; }
+  .sel-wrap::after{
+    content:''; position:absolute; right:14px; top:50%; width:8px; height:8px;
+    border-right:1.5px solid #9AA3B0; border-bottom:1.5px solid #9AA3B0;
+    transform:translateY(-70%) rotate(45deg); pointer-events:none;
+  }
+  select{ width:100%; font-size:14px; padding:11px 12px; border:1.5px solid var(--line); border-radius:10px; background:#FFF; outline:none; appearance:none; -webkit-appearance:none; }
+  select:focus{ border-color:var(--pri); }
+  /* 结果 */
+  .result{ border:1.5px solid var(--pri); box-shadow:0 6px 18px rgba(59,123,255,.10); }
+  .result .rows .row{ display:flex; justify-content:space-between; align-items:baseline; padding:7px 0; font-size:13px; }
+  .result .rows .row+.row{ border-top:1px dashed var(--line); }
+  .result .row .k{ color:var(--ink2); flex:none; margin-right:12px; }
+  .result .row .v{ text-align:right; font-weight:600; }
+  .result .row.main .v{ font-size:21px; color:var(--pri); }
+  .result .row.floor .v{ font-size:17px; color:var(--ink); }
+  .result .row .v.g{ color:var(--save); }
+  .result .tag-line{ margin-top:10px; font-size:11px; color:var(--ink2); }
+  /* 规矩/阶梯 */
+  .rules li{ font-size:12.5px; line-height:1.8; margin-left:18px; color:var(--ink); }
+  .table{ width:100%; border-collapse:collapse; font-size:12px; }
+  .table th,.table td{ border:1px solid var(--line); padding:7px 6px; text-align:center; }
+  .table th{ background:var(--hov); font-weight:600; }
+  .warnbox{ background:var(--warn-bg); border:1px solid #FFD8A8; border-radius:10px; padding:10px 12px; font-size:11.5px; color:var(--warn); line-height:1.7; margin-top:12px; }
+  footer{ max-width:520px; margin:0 auto; padding:14px 16px; font-size:10.5px; color:#9AA3B0; line-height:1.7; text-align:center; }
+</style>
+</head>
+<body class="locked">
+
+<div id="gate">
+  <div class="box">
+    <h1>渠道报价助手</h1>
+    <p>仅限渠道合作方使用，请输入口令</p>
+    <input id="pin" type="password" inputmode="numeric" placeholder="····">
+    <div class="err" id="gateErr"></div>
+    <button id="pinBtn">进入</button>
+  </div>
+</div>
+
+<header class="top">
+  <div class="row1"><div class="t">渠道报价助手</div><div class="badge">内部使用 · 勿外传</div></div>
+  <div class="s">零售价即客户价 · 底价为渠道结算价 · 客户版页面不含底价</div>
+</header>
+
+<main>
+  <!-- 方案 -->
+  <section class="card">
+    <h2>服务方案</h2>
+    <div class="hint" id="planHint"></div>
+    <div id="planList"></div>
+  </section>
+
+  <!-- 平台 + 周期 + 档位 -->
+  <section class="card" id="cardCfg">
+    <h2>配置</h2>
+    <div class="hint">豆包为基础平台；加平台零售 +¥1,500/月，底价 +¥1,000/月</div>
+    <div class="chips" id="platChips" style="margin-bottom:12px"></div>
+    <div class="seg" id="cycleSeg" style="margin-bottom:12px"></div>
+    <div class="sel-wrap"><select id="tier"></select></div>
+  </section>
+
+  <!-- 测算结果 -->
+  <section class="card result">
+    <h2>本单测算</h2>
+    <div class="hint" id="rPlan"></div>
+    <div class="rows" id="rRows"></div>
+    <div class="tag-line" id="rNote"></div>
+  </section>
+
+  <!-- 量阶梯 -->
+  <section class="card">
+    <h2>月度签单量 · 底价阶梯</h2>
+    <div class="hint">按自然月签约单量，当月内适用对应档位</div>
+    <table class="table" id="tierTable"></table>
+  </section>
+
+  <!-- 提成与结算 -->
+  <section class="card">
+    <h2>销售提成与结算</h2>
+    <div class="hint">按客户实付零售价计提</div>
+    <ul class="rules">
+      <li>首年服务提成 <b>20%</b>；客户续费提成 <b>10%</b>；单月签满 3 单后，超出部分提成 <b>25%</b></li>
+      <li>客户全款到账后 <b>7 日内</b>结算提成</li>
+      <li>退款服务单，提成按同比例退回</li>
+    </ul>
+    <div class="warnbox">
+      三条约定：① 底价之下不接单；② AI 上线节奏不打包票，统一话术「先出诊断报告看基线，期末同题复测看数据对比」；③ 报告数据我方留底，案例对外使用脱敏版。零售价低于客户版页面标准的特价，需提前报备。
+    </div>
+  </section>
+</main>
+
+<footer>本工具仅限渠道合作方内部使用，请勿外传链接或截图 · 客户价配置见 quotation-config.js，底价配置见 quotation-dealer.config.js</footer>
+
+<script>
+(function(){
+  const C = window.QUOTE_CONFIG, D = window.QUOTE_DEALER;
+  const fmt = n => '¥' + n.toLocaleString('zh-CN');
+  const $  = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  const state = { plan:'std', platforms:['doubao'], cycle:'m', tier:0 };
+
+  const planMeta = {
+    std:{ name:'标准试点包', spec:'2 词根 · 100 组问法 · 含报告+复测' },
+    lite:{ name:'轻量体验包', spec:'1 词根 · 50 组问法 · 含报告+复测' },
+    rpt:{ name:'诊断报告单份', spec:'100 问基线采集 · 签约全额抵扣' }
+  };
+
+  /* ---------- 口令帘 ---------- */
+  function gate(){
+    const pass = () => { sessionStorage.setItem('dq_ok','1'); document.body.classList.remove('locked'); $('#gate').style.display='none'; };
+    if (sessionStorage.getItem('dq_ok') === '1') pass();
+    const tryIn = () => {
+      if ($('#pin').value === D.pin) pass();
+      else { $('#gateErr').textContent = '口令不对，再试试'; $('#pin').value=''; }
+    };
+    $('#pinBtn').addEventListener('click', tryIn);
+    $('#pin').addEventListener('keydown', e => { if (e.key === 'Enter') tryIn(); });
+  }
+
+  /* ---------- 纯算价（测试入口：window.D.calc） ---------- */
+  function calc(s){
+    const R = C.retail;
+    if (s.plan === 'rpt'){
+      const retail = R.report, floor = D.reportFloor;
+      return { retail, floor, margin:retail-floor, commission:retail*D.commission.firstYear, net:retail-floor-retail*D.commission.firstYear, perLabel:'/份' };
+    }
+    const base = s.plan === 'std' ? R.std : R.lite;
+    const extra = (s.platforms.length - 1) * R.extraPlatform;
+    const tier = D.tiers[s.tier];
+    const floor = (s.plan === 'std' ? tier.std : tier.lite) + (s.platforms.length - 1) * D.extraPlatformFloor;
+    const month = base + extra;
+    if (s.cycle === 'q'){
+      const retail = month*3 - R.quarterlyOff, fl = floor*3;
+      return { retail, floor:fl, margin:retail-fl, commission:retail*D.commission.firstYear, net:retail-fl-retail*D.commission.firstYear, perLabel:'/季', month };
+    }
+    return { retail:month, floor, margin:month-floor, commission:month*D.commission.firstYear, net:month-floor-month*D.commission.firstYear, perLabel:'/月', month };
+  }
+
+  function renderStatic(){
+    $('#planHint').textContent = '点选后自动测算';
+    $('#planList').innerHTML = ['std','lite','rpt'].map(k => `
+      <div class="plan" data-plan="${k}">
+        <div class="radio"></div>
+        <div class="p-body">
+          <div class="p-name">${planMeta[k].name}</div>
+          <div class="p-desc">${planMeta[k].spec}</div>
+        </div>
+        <div class="p-price">${fmt(k==='rpt'?C.retail.report:(k==='std'?C.retail.std:C.retail.lite))}<span style="font-size:10px;font-weight:400;color:var(--ink2)">${k==='rpt'?'/份':'/月起'}</span></div>
+      </div>`).join('');
+    $('#platChips').innerHTML = C.platforms.map(p => `
+      <span class="chip ${p.included?'lock':''}" data-pid="${p.id}">${p.name}${p.included?'<small>含</small>':''}</span>`).join('');
+    $('#cycleSeg').innerHTML = `
+      <div class="opt" data-c="m"><b>月付</b><span>按月</span></div>
+      <div class="opt" data-c="q"><b>季付</b><span>零售立减 ${fmt(C.retail.quarterlyOff)}</span></div>`;
+    $('#tier').innerHTML = D.tiers.map((t,i) => `<option value="${i}">${t.label}</option>`).join('');
+    $('#tierTable').innerHTML = `
+      <tr><th>档位</th><th>标准包底价</th><th>轻量包底价</th></tr>` +
+      D.tiers.map(t => `<tr><td>${t.label}</td><td>${fmt(t.std)}/月</td><td>${fmt(t.lite)}/月</td></tr>`).join('');
+  }
+
+  function render(){
+    $$('.plan').forEach(el => el.classList.toggle('on', el.dataset.plan === state.plan));
+    $$('#cardCfg').forEach(el => el.style.display = state.plan === 'rpt' ? 'none' : '');
+    $$('.chip').forEach(el => el.classList.toggle('on', !el.classList.contains('lock') && state.platforms.includes(el.dataset.pid)));
+    $$('.opt').forEach(el => el.classList.toggle('on', el.dataset.c === state.cycle));
+    const r = calc(state);
+    $('#rPlan').textContent = planMeta[state.plan].name + ' · ' + (state.plan==='rpt' ? '单份' : (state.cycle==='q'?'季付':'月付') + ' · ' + D.tiers[state.tier].label);
+    const names = C.platforms.filter(p => state.platforms.includes(p.id)).map(p => p.name).join(' + ');
+    const rows = [
+      ['建议零售价（客户价）', fmt(r.retail) + r.perLabel, 'main'],
+      ['本单底价（渠道结算）', fmt(r.floor) + r.perLabel, 'floor'],
+      ['毛利空间', fmt(r.margin), 'g'],
+      ['销售提成参考（首年 20%）', fmt(r.commission), ''],
+      ['渠道净收益', fmt(r.net), 'g']
+    ];
+    $('#rRows').innerHTML = rows.map(([k,v,cls]) =>
+      `<div class="row ${cls}"><span class="k">${k}</span><span class="v ${cls==='g'?'g':''}">${v}</span></div>`).join('');
+    $('#rNote').textContent = (state.plan==='rpt' ? '' : '平台：' + names + ' · ') +
+      '续费单提成 10%；底价按月计，季付底价 = 月底价 × 3';
+  }
+
+  function bind(){
+    $('#planList').addEventListener('click', e => {
+      const el = e.target.closest('.plan'); if (!el) return;
+      state.plan = el.dataset.plan; render();
+    });
+    $('#platChips').addEventListener('click', e => {
+      const el = e.target.closest('.chip'); if (!el || el.classList.contains('lock')) return;
+      const id = el.dataset.pid, i = state.platforms.indexOf(id);
+      if (i > -1) state.platforms.splice(i, 1); else state.platforms.push(id);
+      render();
+    });
+    $('#cycleSeg').addEventListener('click', e => {
+      const el = e.target.closest('.opt'); if (!el) return;
+      state.cycle = el.dataset.c; render();
+    });
+    $('#tier').addEventListener('change', e => { state.tier = +e.target.value; render(); });
+  }
+
+  gate();
+  renderStatic();
+  bind();
+  render();
+  window.D = { state, calc };
+})();
+</script>
+</body>
+</html>
