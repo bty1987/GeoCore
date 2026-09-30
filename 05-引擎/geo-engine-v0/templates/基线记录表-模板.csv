@@ -1,0 +1,3 @@
+run_id,platform,qid,query_text,brand_mentioned,recommend_rank,sentiment,citation_count,citations,sources_contain_us,competitors_mentioned,snapshot_path,online_mode,collected_at
+250930_doubao_A01,doubao,A01,空针数据是什么公司,是,,正,5,https://www.kongzhen.com/;https://mp.weixin.qq.com/s/xxx,是,,250930_doubao_A01.jpg,是,2026-09-30 10:12:00
+250930_doubao_B01,doubao,B01,装修公司ERP系统哪家好,是,3,中,8,https://www.zhuangyi.com/;https://www.yizhuang.com/,否,一装ERP;智装天下;掌赋,250930_doubao_B01.jpg,是,2026-09-30 10:21:00

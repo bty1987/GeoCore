@@ -1,0 +1,13 @@
+run_id,platform,qid,query_text,brand_mentioned,recommend_rank,sentiment,citation_count,citations,sources_contain_us,competitors_mentioned,snapshot_path,online_mode,collected_at
+250923_doubao_A01,doubao,A01,空针数据是什么公司,是,,正,3,https://www.kongzhen.com/,是,,250923_doubao_A01.jpg,是,2026-09-23 10:01:00
+250923_doubao_A02,doubao,A02,空针数据怎么样,否,,,2,,,250923_doubao_A02.jpg,是,2026-09-23 10:09:00
+250923_doubao_A05,doubao,A05,空针数据 装修管理系统,描述性提及,,中,1,https://mp.weixin.qq.com/s/xxx,否,掌赋,250923_doubao_A05.jpg,是,2026-09-23 10:17:00
+250923_doubao_B01,doubao,B01,装修公司ERP系统哪家好,是,5,中,8,https://www.yizhuang.com/,否,一装ERP;智装天下,250923_doubao_B01.jpg,是,2026-09-23 10:26:00
+250923_doubao_B09,doubao,B09,装修ERP十大品牌,否,,,4,,,一装ERP,250923_doubao_B09.jpg,是,2026-09-23 10:34:00
+250923_doubao_B12,doubao,B12,装修公司预算报价软件哪个好,是,7,中,6,https://www.kongzhen.com/baojia,否,一装ERP,250923_doubao_B12.jpg,是,2026-09-23 10:42:00
+250923_doubao_C02,doubao,C02,空针数据和一装ERP哪个好,是,2,正,9,https://www.kongzhen.com/,是,一装ERP;智装天下,250923_doubao_C02.jpg,是,2026-09-23 10:50:00
+250923_yuanbao_A01,yuanbao,A01,空针数据是什么公司,是,,正,4,https://www.kongzhen.com/,是,,250923_yuanbao_A01.jpg,是,2026-09-24 10:01:00
+250923_yuanbao_B01,yuanbao,B01,装修公司ERP系统哪家好,否,,,6,,,智装天下;一装ERP,250923_yuanbao_B01.jpg,是,2026-09-24 10:09:00
+250923_yuanbao_B09,yuanbao,B09,装修ERP十大品牌,否,,,5,,,一装ERP,250923_yuanbao_B09.jpg,是,2026-09-24 10:17:00
+250923_deepseek_A01,deepseek,A01,空针数据是什么公司,是,,中,2,https://www.kongzhen.com/,否,,250923_deepseek_A01.jpg,否,2026-09-25 10:01:00
+250923_deepseek_B01,deepseek,B01,装修公司ERP系统哪家好,是,9,中,3,https://www.yizhuang.com/,否,一装ERP,250923_deepseek_B01.jpg,是,2026-09-25 10:09:00

@@ -28,7 +28,14 @@ engine/adapters/doubao.py   豆包（先行）——Playwright 流程骨架
 queries/kongzhen-40.yaml 空针 40 条监测词（来自执行手册 Phase 2.1）
 config.example.yaml      配置样例（复制为 config.yaml 填真实值）
 output/                  运行产出（CSV 台账 + screenshots/，不入库）
+weekly_report.py         周报半自动生成器（P0-1，引擎未上线也可用手填 CSV）
+templates/               基线记录表模板（P0-2，引擎/手动共用 schema）
+examples/                样例数据（两周 CSV，跑通冒烟测试用）
 ```
+
+## 已就绪：周报与基线工具（P0-1 + P0-2，2026-09-30）
+
+**引擎不用等它**——手动监测照 `templates/基线记录表-模板.csv` 填，`python3 weekly_report.py --this-week <csv> [--last-week <csv>]` 即出周报草稿（五核心数字/周环比/竞品动态/需优化词清单）。字段字典、填写纪律、每周流程见 **[周报与基线工具.md](周报与基线工具.md)**。本目录 CSV 产出与该 schema 完全咬合，引擎上线后生成器零改动接上。
 
 ## 与手动 SOP 的对应（验收口径不变）
 
