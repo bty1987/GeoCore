@@ -28,14 +28,26 @@ engine/adapters/doubao.py   豆包（先行）——Playwright 流程骨架
 queries/kongzhen-40.yaml 空针 40 条监测词（来自执行手册 Phase 2.1）
 config.example.yaml      配置样例（复制为 config.yaml 填真实值）
 output/                  运行产出（CSV 台账 + screenshots/，不入库）
+quickcheck.py            快查报告生成器（P1-4，获客钩子）
+attribution.py           归因核对器（P2-6，发布台账×监测引用）
+portal.html              客户只读周报门户（P2-5，配 --json 导出）
 weekly_report.py         周报半自动生成器（P0-1，引擎未上线也可用手填 CSV）
-templates/               基线记录表模板（P0-2，引擎/手动共用 schema）
+templates/               基线记录表 + 归因台账模板（P0-2 / P2-6）
 examples/                样例数据（两周 CSV，跑通冒烟测试用）
 ```
 
-## 已就绪：周报与基线工具（P0-1 + P0-2，2026-09-30）
+## 工具链总览（2026-10-01，P0/P1/P2 六件全部就绪）
 
-**引擎不用等它**——手动监测照 `templates/基线记录表-模板.csv` 填，`python3 weekly_report.py --this-week <csv> [--last-week <csv>]` 即出周报草稿（五核心数字/周环比/竞品动态/需优化词清单）。字段字典、填写纪律、每周流程见 **[周报与基线工具.md](周报与基线工具.md)**。本目录 CSV 产出与该 schema 完全咬合，引擎上线后生成器零改动接上。
+| 工具 | 文件 | 状态 | 一句话 |
+|---|---|---|---|
+| P0-2 基线记录表 | `templates/基线记录表-模板.csv` | ✅ | 数据底座：14 列 schema，引擎/手动同源 |
+| P0-1 周报生成器 | `weekly_report.py` | ✅ | 单周统计/双周环比→周报草稿；`--json` 出门户数据 |
+| P1-4 快查报告 | `quickcheck.py` | ✅ | 获客钩子：10–20 问实测→客户视角快查报告 |
+| P2-6 归因核对 | `attribution.py` + `templates/归因台账-模板.csv` | ✅ | 发布台账×监测引用→谁的内容真被 AI 引用了 |
+| P2-5 只读门户 | `portal.html` | ✅ | 客户 token 只读页，消费 `周报数据.json` |
+| P1-3 内容量产工作台 | `../内容工作台/` | ✅ | 事实库+六平台模板+强制引用 prompt（纯模板，零开发） |
+
+**每周闭环**：监测/填表 → `weekly_report.py`（周报+`--json`）→ 门户更新 → 未提及词喂 `../内容工作台/` 出内容 → 发布登记归因台账 → `attribution.py` 核对引用回血。详见各工具头部说明与 **[周报与基线工具.md](周报与基线工具.md)**。样例数据在 `examples/`（两周 CSV），全部工具已冒烟通过。
 
 ## 与手动 SOP 的对应（验收口径不变）
 

@@ -57,8 +57,9 @@ GeoCore/
 ### 05-引擎/
 | 目录 | 说明 |
 |---|---|
-| `geo-engine-v0/` | 监测引擎脚手架：适配器抽象 + 豆包骨架 + 限频调度 + 空针 40 词表。v0 目标：自动化跑 40 词 × 平台监测（原目标 2026-10-05）。密钥只放 `config.yaml`（已 gitignore），只提交 `config.example.yaml` |
-| `geo-web/` | GEO检测系统网页前端种子：`index.html` 单文件（复刻同类产品页版式：左侧导航 + hero 进入系统 + 共享报告表格 + 悬浮客服）。品牌名/slogan/示例数据为占位，预览 `cd 05-引擎/geo-web && python3 -m http.server 8777` |
+| `geo-engine-v0/` | 监测引擎脚手架：适配器抽象 + 豆包骨架 + 限频调度 + 空针 40 词表。v0 目标：自动化跑 40 词 × 平台监测（原目标 2026-10-05）。密钥只放 `config.yaml`（已 gitignore），只提交 `config.example.yaml`。**已就绪工具链（2026-10-01）：基线记录表模板/周报生成器/快查报告/归因核对/客户只读门户，详见其 README 工具链总览** |
+| `geo-web/` | GEO检测系统网页前端：`index.html` 演示版 + `quotation.html` 客户版询价 + `quotation-dealer.html` 渠道版（含底价，禁公网部署，主机白名单+口令双护栏）。预览 `cd 05-引擎/geo-web && python3 -m http.server 8777` |
+| `内容工作台/` | P1-3 内容量产：事实库模板 + 六平台内容模板 + 强制引用事实库的起草 prompt + 每周节奏（接周报"需优化词清单"） |
 
 ### 06-设计工程/
 | 目录 | 说明 |

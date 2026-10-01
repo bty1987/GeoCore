@@ -137,7 +137,8 @@
   <div class="brand" id="brandName"></div>
   <div class="sub" id="brandSub"></div>
   <div class="tags">
-    <span class="tag">豆包等主流 AI 平台</span>
+    <span class="tag">基线监测 40 词 × 3 平台</span>
+    <span class="tag">优化平台 6 家可选</span>
     <span class="tag">诊断报告先行</span>
     <span class="tag">基线-复测 数据对比</span>
   </div>
@@ -154,7 +155,7 @@
   <!-- ② 选平台 -->
   <section class="card" id="cardPlat">
     <h2>② 选择优化平台</h2>
-    <div class="hint">豆包为基础平台，可增加其他平台扩大覆盖面</div>
+    <div class="hint">基线监测固定覆盖豆包、腾讯元宝、DeepSeek 三家平台；下方为优化平台选项：豆包含在基础包内，加选其余平台扩大内容覆盖面。</div>
     <div class="chips" id="platChips"></div>
   </section>
 
@@ -189,6 +190,7 @@
     <div class="detail" id="rDetail"></div>
     <div class="notes">
       · 诊断报告签约后全额抵扣服务费<br>
+      · 基线监测口径：40 词四类（品牌词 / 品类词 / 对比词 / 场景词）× 3 平台（豆包、腾讯元宝、DeepSeek）<br>
       · 优化效果以「基线 — 复测」同题数据对比为准，每一分变化看得见<br>
       · 本页为标准报价，最终方案以服务确认单为准
     </div>
@@ -238,9 +240,9 @@
   }
 
   const planMeta = {
-    std:{ name:'标准试点包', spec:'2 词根 · 100 组问法', desc:'含 AI 可见度诊断报告 · 1 个月内容优化 · 期末同题复测对比' },
-    lite:{ name:'轻量体验包', spec:'1 词根 · 50 组问法', desc:'同样含诊断报告与复测对比，先小步验证效果' },
-    rpt:{ name:'AI 可见度诊断报告', spec:'单份 · 100 问基线采集', desc:'摸清品牌在 AI 回答中的真实位置，签约后全额抵扣' }
+    std:{ name:'标准试点包', spec:'2 词根 · 问法覆盖 100 组', desc:'含 AI 可见度诊断报告 · 1 个月内容优化 · 期末同题复测对比' },
+    lite:{ name:'轻量体验包', spec:'1 词根 · 问法覆盖 50 组', desc:'同样含诊断报告与复测对比，先小步验证效果' },
+    rpt:{ name:'AI 可见度诊断报告', spec:'单份 · 40 词基线监测（四类词 × 3 平台）', desc:'摸清品牌在 AI 回答中的真实位置，签约后全额抵扣' }
   };
 
   /* ---------- 渲染 ---------- */
@@ -311,7 +313,7 @@
       if (r.extra) rows.push(['多平台加购', '+' + fmt(r.extra) + '/月']);
       rows.push(['服务内容', '诊断报告 · 内容优化 · 期末复测对比']);
     } else {
-      rows.push(['服务内容', '100 问基线采集 · 可见度评估报告']);
+      rows.push(['服务内容', '40 词基线监测 · 可见度评估报告']);
       rows.push(['抵扣说明', '签约后全额抵扣服务费']);
     }
     return rows.map(([k,v]) => `<div class="row"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');

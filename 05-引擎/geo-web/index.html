@@ -7,6 +7,9 @@
 <!-- ============================================================
   空针数据 · GEO检测分析智能体 v3（对照同类产品流程的自研实现）
   品牌：空针数据（自建试验田口径，对外不包装成客户案例）
+  监测口径（正式）：40 词四类（品牌词 10/品类词 12/对比词 8/场景词 10）× 3 平台
+        （豆包/腾讯元宝/DeepSeek），词表见 geo-engine-v0/queries/kongzhen-40.yaml；
+        本页三阶段 18 问仅为演示样例，不代表监测面。
   流程：创建分析 → 意图提取（三阶段问法矩阵）→ 模型选择/算力结算
         → 开始分析 → 报告（演示数据，待接 geo-engine-v0）
   本页所有文案为自有写法；数据存 localStorage（演示）。
@@ -151,6 +154,7 @@
   .btn-primary:disabled { background: #A8C4F5; cursor: not-allowed; box-shadow: none; }
   .btn-plain { background: #FFF; color: #1F2329; border-color: #DCDFE6; }
   .btn-plain:hover { border-color: #3B7BFF; color: #3B7BFF; }
+  .btn-plain:disabled { background: #F5F6F8; color: #C0C6CF; border-color: #EBEEF5; cursor: not-allowed; box-shadow: none; }
 
   /* ---------------- AI 过程面板 ---------------- */
   .ai-panel {
@@ -334,6 +338,8 @@
     transition: transform .15s ease, background .15s ease; z-index: 90;
   }
   .fab:hover { background: #2E6AE5; transform: translateY(-2px); }
+  .fab.disabled { background: #C0C6CF; box-shadow: none; cursor: not-allowed; }
+  .fab.disabled:hover { background: #C0C6CF; transform: none; }
 </style>
 </head>
 <body>
@@ -365,7 +371,7 @@
 
 <main class="main" id="main"></main>
 
-<div class="fab" title="联系客服" onclick="toast('客服入口规划中')">
+<div class="fab disabled" title="演示版未开放">
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
 </div>
 <div class="toast" id="toast"></div>
@@ -601,7 +607,7 @@ function startExtract() {
   card.style.opacity = .6;
   card.insertAdjacentHTML('beforebegin', `
     <div class="ai-panel" id="extract-panel">
-      <h3><span class="spinner" id="extract-spin"></span>正在提取用户意图<span style="font-weight:400;font-size:12px;color:#98A1B0">（演示加速，实际由AI生成约需30秒）</span></h3>
+      <h3><span class="spinner" id="extract-spin"></span>正在提取用户意图<span style="font-weight:400;font-size:12px;color:#98A1B0">（演示加速，实际由分析引擎生成约需 30 秒）</span></h3>
       <ul class="ai-steps" id="extract-steps"></ul>
       <div class="ai-note" id="extract-note">请勿刷新页面</div>
     </div>`);
@@ -660,7 +666,7 @@ function renderMatrix() {
       <div class="phase-toolbar">
         <button class="tool-btn danger" ${locked ? 'disabled' : ''} onclick="delChecked('${key}')">🗑 删除所选</button>
         <button class="tool-btn" ${locked ? 'disabled' : ''} onclick="regenPhase('${key}')">↻ 再生成</button>
-        <button class="tool-btn" ${locked ? 'disabled' : ''} onclick="toast('批量添加：接入引擎后可用')">＋ 批量添加</button>
+        <button class="tool-btn" disabled title="演示版未开放">＋ 批量添加</button>
       </div>
       <table class="q-table">
         <thead><tr>
@@ -702,11 +708,12 @@ function renderMatrix() {
     <div class="phase-tabs">
       ${Object.keys(PHASES).map(k => `<button class="phase-tab ${matrixPhase === k ? 'active' : ''}" onclick="matrixPhase='${k}';renderMatrix()">${PHASES[k].name}</button>`).join('')}
     </div>
+    <div class="phase-def" style="margin-bottom:12px">演示样例默认每阶段 6 问（三阶段共 18 问），仅用于展示分析流程；正式基线监测为 40 词四类（品牌词 10 · 品类词 12 · 对比词 8 · 场景词 10）× 3 平台（豆包 / 腾讯元宝 / DeepSeek）。</div>
     ${phaseHtml(matrixPhase)}
 
     <div class="model-section">
       <h3>选择监测模型</h3>
-      <div class="hint">已选 <b id="model-count">${r.models.length}</b> 个模型；增减模型或提问词都会改变算力消耗</div>
+      <div class="hint">已选 <b id="model-count">${r.models.length}</b> 个模型；增减模型或提问词都会改变算力消耗。<br>演示版开放全部平台供体验；正式基线监测固定为豆包、腾讯元宝、DeepSeek 三个平台，不随勾选变化。</div>
       <div class="model-group-label">国内</div>
       <div class="model-grid">${modelsHtml('国内')}</div>
       <div class="model-group-label">国外</div>
@@ -854,9 +861,9 @@ function renderReport(r) {
 
   main.innerHTML = `
     <div class="doc-actions">
-      <button class="btn-plain" onclick="toast('切换模板：接入报告模板产线后可用')">切换模板</button>
-      <button class="btn-plain" onclick="toast('下载：接入引擎后可导出 PDF')">下载</button>
-      <button class="btn-plain" onclick="toast('编辑：演示版只读')">编辑</button>
+      <button class="btn-plain" disabled title="演示版未开放">切换模板</button>
+      <button class="btn-plain" disabled title="演示版未开放">下载</button>
+      <button class="btn-plain" disabled title="演示版未开放">编辑</button>
     </div>
     <div class="doc">
       <div class="doc-head">
@@ -893,7 +900,7 @@ function renderReport(r) {
           <span class="bv">${s.rate}%</span></div>`;
       }).join('')}
       <div class="decl" style="margin-top:10px">
-        <b>解读（演示）：</b>目标品牌「${r.brand}」综合可见度 ${score}%。真实报告在此由 AI 生成客观解读：对照头部竞品量化差距、指出未进入推荐视野的问法场景、给出优先补内容的方向。接入引擎后此处为真实结论。
+        <b>解读（演示）：</b>目标品牌「${r.brand}」综合可见度 ${score}%。真实报告在此由监测引擎输出客观解读：对照头部竞品量化差距、指出未进入推荐视野的问法场景、给出优先补内容的方向。接入引擎后此处为真实结论。
       </div>
       ${r.competitors ? `
       <h3>品牌与竞品提及率对比（演示）</h3>
@@ -936,7 +943,7 @@ function renderReport(r) {
       <p>（演示占位）真实报告在此附上每次对话的截图存证，便于品牌方逐条核验。</p>
 
       <h2>下一步</h2>
-      <p>1. 演示数据仅用于验证报告结构，真实数据由 geo-engine-v0 监测引擎生成（40 词 × 多平台自动采集）。<br>
+      <p>1. 演示数据仅用于验证报告结构，真实数据由 geo-engine-v0 监测引擎生成（40 词四类 × 3 平台自动采集：豆包、腾讯元宝、DeepSeek）。<br>
          2. 报告导出走 06-设计工程 的咨询报告体 PDF 产线。<br>
          3. 优化执行进入 GEO 优化系统（规划中）。</p>
     </div>`;
@@ -962,7 +969,7 @@ function renderMember() {
       </div>
       <div class="form-actions" style="margin-top:16px">
         <button class="btn-primary" onclick="setCredits(getCredits()+1000);renderMember();toast('已充值1000点（演示）')">充值（演示）</button>
-        <button class="btn-plain" onclick="toast('兑换码功能：接入支付后可用')">兑换码</button>
+        <button class="btn-plain" disabled title="演示版未开放">兑换码</button>
       </div>
     </div>`;
 }

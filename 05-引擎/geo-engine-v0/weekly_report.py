@@ -85,6 +85,21 @@ def parse_rank(cell: str):
     return int(cell) if cell.isdigit() else None
 
 
+def fmt_rank(r):
+    return "未上榜" if r is None else f"第{r}位"
+
+
+def change_text(x):
+    """diff 条目 → 人话。MD 周报与 JSON 门户共用同一渲染，防两处口径漂移。"""
+    if x["mention"][0] != x["mention"][1]:
+        t = f"提及 {x['mention'][0]}→{x['mention'][1]}"
+        return t + (" ⭐" if x["mention"][1] == MENTION_YES else " ⚠️")
+    t = f"位次 {fmt_rank(x['rank'][0])}→{fmt_rank(x['rank'][1])}"
+    if x["cites"]:
+        t += f"｜引用 {x['cites']:+d}"
+    return t
+
+
 def week_of(rows: list[dict]) -> str:
     days = []
     for r in rows:
@@ -159,6 +174,48 @@ def diff(this_rows: list[dict], last_rows: list[dict], yaml_map: dict | None) ->
     return out
 
 
+def build_json(args, this_rows, last_rows, yaml_map, token) -> dict:
+    """P2-5 客户只读门户的数据源（与 MD 周报同源同口径）。"""
+    s = stats(this_rows, yaml_map)
+    brate, byes = rate(s["mention"].get("brand", Counter()), s["by_qtype"].get("brand", 0))
+    crate, cyes = rate(s["mention"].get("category", Counter()), s["by_qtype"].get("category", 0))
+    data = {
+        "schema": "geo-weekly-report/1.0",
+        "caliber": "40 词四类 × 3 平台（豆包/腾讯元宝/DeepSeek）",
+        "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "brand": args.brand,
+        "week": week_of(this_rows),
+        "token": token,
+        "core": {
+            "total": s["total"],
+            "by_platform": {PLATFORM_LABEL.get(p, p): n for p, n in sorted(s["by_platform"].items())},
+            "brand_rate": {"rate": brate, "yes": byes, "total": s["by_qtype"].get("brand", 0),
+                           "descriptive": s["descriptive"]},
+            "category_rate": {"rate": crate, "yes": cyes, "total": s["by_qtype"].get("category", 0),
+                              "best_rank": min(s["ranks"]) if s["ranks"] else None},
+            "citation_avg": round(s["citation_avg"], 1) if s["citation_avg"] is not None else None,
+            "us_sources": s["us_sources"],
+            "sentiment": {k: s["sentiment"].get(k, 0) for k in SENTIMENTS},
+        },
+        "diff": [],
+        "competitors": [{"name": n, "count": c} for n, c in s["competitors"].most_common(8)],
+        "misses": [
+            {"platform": PLATFORM_LABEL.get(r["platform"], r["platform"]), "qid": r["qid"],
+             "query": r["query_text"], "status": (r.get("brand_mentioned") or "").strip() or "未填"}
+            for r in this_rows
+            if qtype_of(r.get("qid", ""), yaml_map)[0] in ("brand", "category")
+            and (r.get("brand_mentioned") or "").strip() != MENTION_YES
+        ],
+        "note": "解读与下周动作为人工补充内容，本页不生成结论。",
+    }
+    if last_rows:
+        for x in diff(this_rows, last_rows, yaml_map):
+            p, qid = x["key"]
+            data["diff"].append({"platform": PLATFORM_LABEL.get(p, p), "qid": qid,
+                                 "query": x["query"], "change": change_text(x)})
+    return data
+
+
 def render(args, this_rows, last_rows, yaml_map) -> str:
     s = stats(this_rows, yaml_map)
     plats = "、".join(PLATFORM_LABEL.get(p, p) for p in sorted(s["by_platform"])) or "—"
@@ -198,14 +255,7 @@ def render(args, this_rows, last_rows, yaml_map) -> str:
             L.append("|---|---|---|---|")
             for x in d:
                 plat, qid = x["key"]
-                if x["mention"][0] != x["mention"][1]:
-                    chg = f"提及 {x['mention'][0]}→{x['mention'][1]}{' ⭐' if x['mention'][1] == MENTION_YES else ' ⚠️'}"
-                else:
-                    fmt = lambda r: "未上榜" if r is None else f"第{r}位"
-                    chg = f"位次 {fmt(x['rank'][0])}→{fmt(x['rank'][1])}"
-                    if x["cites"]:
-                        chg += f"｜引用 {x['cites']:+d}"
-                L.append(f"| {PLATFORM_LABEL.get(plat, plat)} | {qid} | {x['query']} | {chg} |")
+                L.append(f"| {PLATFORM_LABEL.get(plat, plat)} | {qid} | {x['query']} | {change_text(x)} |")
             L.append("")
     L.append("## 三、竞品动态（被提及次数排行）")
     L.append("")
@@ -248,6 +298,8 @@ def main():
     ap.add_argument("--outdir", default="output/reports")
     ap.add_argument("--queries", default="queries/kongzhen-40.yaml", help="词表 yaml（读 qid→类型；缺 pyyaml 时按前缀推断）")
     ap.add_argument("--expect-full", action="store_true", help="按 40×3=120 条校验采集完成率")
+    ap.add_argument("--json", action="store_true", help="同时导出 周报数据.json（P2-5 只读门户数据源）")
+    ap.add_argument("--token", default="", help="门户访问令牌（--json 时写入数据文件，与 portal.html 配对）")
     a = ap.parse_args()
 
     yaml_map = load_yaml_qtypes(a.queries if Path(a.queries).exists() else None)
@@ -261,6 +313,12 @@ def main():
     dest = out / f"周报草稿_{week_of(this_rows).replace('-', '')}.md"
     dest.write_text(md, encoding="utf-8")
     print(f"✅ 周报草稿已生成：{dest}")
+    if a.json:
+        import json
+        jdest = out / "周报数据.json"
+        jdest.write_text(json.dumps(build_json(a, this_rows, last_rows, yaml_map, a.token),
+                                    ensure_ascii=False, indent=1), encoding="utf-8")
+        print(f"✅ 门户数据已导出：{jdest}（与 portal.html 同目录部署，token 经 --token 写入）")
     print("   下一步：补齐「五、待人工补充」三处留白，人工确认后对外。")
 
 

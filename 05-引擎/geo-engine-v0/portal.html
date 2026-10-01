@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<!-- GEO 客户只读周报门户（P2-5）。静态单文件：与 周报数据.json 同目录部署即可。
+     口令（token）由 weekly_report.py --json --token 写入数据文件；
+     访客通过 URL hash（#t=令牌）或页面输入框提供。不收集任何数据、无外部依赖。 -->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>GEO 监测周报（客户只读）</title>
+<style>
+  :root { --ink:#1a2233; --sub:#5b6472; --line:#e4e7ec; --bg:#f7f8fa; --card:#fff;
+          --up:#0a7d4b; --warn:#b45309; --accent:#1d4ed8; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font:15px/1.75 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+         color:var(--ink); background:var(--bg); padding:32px 16px; }
+  main { max-width:880px; margin:0 auto; }
+  h1 { font-size:22px; margin-bottom:4px; }
+  .sub { color:var(--sub); font-size:13px; margin-bottom:20px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px;
+          padding:18px 20px; margin-bottom:16px; }
+  .nums { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
+  .num b { display:block; font-size:26px; line-height:1.3; }
+  .num span { color:var(--sub); font-size:12.5px; }
+  h2 { font-size:16px; margin-bottom:10px; }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  th,td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--sub); font-weight:600; font-size:12.5px; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { background:var(--bg); border:1px solid var(--line); border-radius:999px;
+          padding:2px 12px; font-size:13px; }
+  .footer { color:var(--sub); font-size:12.5px; margin-top:18px; line-height:1.8; }
+  #gate { max-width:380px; margin:12vh auto 0; text-align:center; }
+  #gate input { font-size:16px; padding:8px 12px; width:200px; border:1px solid var(--line);
+                border-radius:8px; }
+  #gate button { font-size:15px; padding:8px 18px; border:0; border-radius:8px;
+                 background:var(--accent); color:#fff; cursor:pointer; }
+  .err { color:var(--warn); font-size:13px; margin-top:8px; min-height:18px; }
+  .up { color:var(--up); } .warn { color:var(--warn); }
+</style>
+</head>
+<body>
+<main>
+  <section id="gate" class="card">
+    <h1>GEO 监测周报</h1>
+    <p class="sub">本页仅限授权客户查看，请输入访问令牌</p>
+    <p><input id="tok" type="password" placeholder="访问令牌" autocomplete="off">
+       <button id="go">查看</button></p>
+    <p class="err" id="gerr"></p>
+  </section>
+
+  <section id="report" hidden>
+    <h1 id="title"></h1>
+    <p class="sub" id="meta"></p>
+
+    <div class="card"><h2>核心指标</h2><div class="nums" id="nums"></div></div>
+
+    <div class="card" id="diffCard" hidden><h2>周环比变化</h2>
+      <table><thead><tr><th>平台</th><th>词</th><th>查询词</th><th>变化</th></tr></thead>
+      <tbody id="diffBody"></tbody></table></div>
+
+    <div class="card" id="compCard" hidden><h2>竞品被提及排行</h2>
+      <div class="chips" id="compChips"></div></div>
+
+    <div class="card" id="missCard" hidden><h2>需优化提问词</h2>
+      <table><thead><tr><th>平台</th><th>词</th><th>查询词</th><th>现状</th></tr></thead>
+      <tbody id="missBody"></tbody></table></div>
+
+    <div class="card" id="noteCard" hidden><h2>本周解读与下周动作</h2>
+      <p id="note" style="color:var(--sub)"></p></div>
+
+    <p class="footer" id="foot"></p>
+  </section>
+</main>
+
+<script>
+'use strict';
+const REPORT_JSON = './周报数据.json';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function tokenFromHash() {
+  const m = location.hash.match(/t=([\w\-]+)/);
+  return m ? m[1] : '';
+}
+
+async function tryOpen(tok) {
+  let data;
+  try { data = await (await fetch(REPORT_JSON, {cache:'no-store'})).json(); }
+  catch (e) { $('gerr').textContent = '数据文件未就绪（周报数据.json 缺失或未部署）'; return false; }
+  if (!data.token) { $('gerr').textContent = '数据文件未配置令牌（生成时请加 --token）'; return false; }
+  if (tok !== data.token) { $('gerr').textContent = '令牌不对，请核对后重试'; return false; }
+  render(data);
+  return true;
+}
+
+function render(d) {
+  const c = d.core || {};
+  $('title').textContent = `${d.brand} · GEO 监测周报（${d.week}）`;
+  $('meta').textContent = `口径：${d.caliber} ｜ 生成：${d.generated_at}`;
+  const best = c.category_rate && c.category_rate.best_rank ? `第${c.category_rate.best_rank}位` : '暂未入榜';
+  const nums = [
+    ['监测采集量', `${c.total} 条`],
+    ['品牌词提及率', `${c.brand_rate ? c.brand_rate.rate : '—'}`],
+    ['品类词提及率', `${c.category_rate ? c.category_rate.rate : '—'}（最佳 ${best}）`],
+    ['平均引用来源', c.citation_avg == null ? '—' : `${c.citation_avg} 条`],
+    ['来源含我方', `${c.us_sources} 条`],
+  ];
+  $('nums').innerHTML = nums.map(([k, v]) =>
+    `<div class="num"><b>${esc(v)}</b><span>${esc(k)}</span></div>`).join('');
+  const senti = c.sentiment || {};
+  $('nums').insertAdjacentHTML('beforeend',
+    `<div class="num"><b>${senti['正'] ?? 0} / ${senti['中'] ?? 0} / ${senti['负'] ?? 0}</b><span>倾向分布（正/中/负）</span></div>`);
+
+  if (d.diff && d.diff.length) {
+    $('diffBody').innerHTML = d.diff.map(x =>
+      `<tr><td>${esc(x.platform)}</td><td>${esc(x.qid)}</td><td>${esc(x.query)}</td>` +
+      `<td class="${x.change.includes('掉出') || x.change.includes('⚠') ? 'warn' : (x.change.includes('⭐') ? 'up' : '')}">${esc(x.change)}</td></tr>`).join('');
+    $('diffCard').hidden = false;
+  }
+  if (d.competitors && d.competitors.length) {
+    $('compChips').innerHTML = d.competitors.map(x =>
+      `<span class="chip">${esc(x.name)} · ${x.count} 次</span>`).join('');
+    $('compCard').hidden = false;
+  }
+  if (d.misses && d.misses.length) {
+    $('missBody').innerHTML = d.misses.map(x =>
+      `<tr><td>${esc(x.platform)}</td><td>${esc(x.qid)}</td><td>${esc(x.query)}</td><td>${esc(x.status)}</td></tr>`).join('');
+    $('missCard').hidden = false;
+  }
+  $('note').textContent = d.note || '（本周解读由服务方人工补充）';
+  $('noteCard').hidden = false;
+  $('foot').textContent = '本报告数据可对照截图证据抽检；服务方不承诺"保证排名/保证收录"。';
+  $('gate').hidden = true;
+  $('report').hidden = false;
+}
+
+$('go').addEventListener('click', () => tryOpen($('tok').value.trim()));
+$('tok').addEventListener('keydown', e => { if (e.key === 'Enter') $('go').click(); });
+const hashTok = tokenFromHash();
+if (hashTok) { $('tok').value = hashTok; tryOpen(hashTok); }
+</script>
+</body>
+</html>
